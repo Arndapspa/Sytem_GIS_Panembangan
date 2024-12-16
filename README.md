@@ -1,6 +1,6 @@
 # System GIS Pajak Bumi dan Bangunan
 Program Sistem Informasi Geografis Pajak Bumi Bangunan Desa Panembangan
----
+
 #### **Deskripsi Proyek**  
 System_GIS_PBB_Panembangan adalah sistem berbasis Sistem Informasi Geografis (SIG) yang dirancang untuk pengelolaan data Pajak Bumi dan Bangunan (PBB) di Desa Panembangan.  
 Sistem ini bertujuan untuk memfasilitasi pengelolaan, analisis, dan visualisasi data spatial terkait PBB guna mendukung pengambilan keputusan yang lebih efektif dan akurat.  
