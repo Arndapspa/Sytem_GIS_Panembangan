@@ -27,7 +27,7 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label">No Kopak</label>
-                                                    <Field type="text" name="number" class="form-control custom-rounded-medium" placeholder="Masukan no kopak" v-model="form.number"/>
+                                                    <Field type="number" name="number" class="form-control custom-rounded-medium" placeholder="Masukan no kopak" v-model="form.number"/>
                                                 </div>
                                             </div>
                                             <div class="form-group row mb-3">
@@ -117,7 +117,7 @@ import { Field, Form, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 
 import { db } from '@/utils/firebase';
-import { doc, setDoc, addDoc, getDoc, getDocs, collection, query, orderBy } from "firebase/firestore";
+import { doc, setDoc, addDoc, getDoc, getDocs, collection, query, orderBy, where } from "firebase/firestore";
 
 import { useRoute } from 'vue-router';
 
@@ -127,7 +127,7 @@ export default {
     name: 'MasterKopak',
     data() {
         return {
-            id: this.$route.params.id,
+            id: this.$route.params.id || '',
             form: {
                 name: '',
                 number: '',
@@ -145,6 +145,7 @@ export default {
             listAdmin: [],
             listStaff: [],
             loading: null,
+            prevNumber: '',
         }
     },
     components: {
@@ -174,6 +175,8 @@ export default {
             if (dataDoc.exists()) {
                 const data = dataDoc.data();
 
+                this.prevNumber = data.number
+
                 this.form = {
                     ...data
                 }
@@ -183,7 +186,16 @@ export default {
     },
     methods: {
         async handleSubmit() {
-            this.saveData(this.id)
+            const checkExistsCode = await this.checkDuplicateByCode()
+            const checkExistsName = await this.checkDuplicateByName()
+
+            if (checkExistsCode > 0) {
+                this.$toast.error('No Kopak Sudah digunakan');
+            } else if (checkExistsName > 0) {
+                this.$toast.error('Nama Kopak Sudah digunakan');
+            } else {
+                this.saveData(this.id)
+            }
         },
         async saveData(id) {
             try {
@@ -233,8 +245,16 @@ export default {
                     show: true
                 }))
 
-                this.listAdmin = listUsers.filter((data) => data.role == 'admin' && data.show === true)
-                this.listStaff = listUsers.filter((data) => data.role == 'staff' && data.show === true)
+                // get kopak supervisor
+                const kopakQuery = query(
+                    collection(db, "kopak"),
+                );
+                const kopakSnapshot = await getDocs(kopakQuery);                
+                const superVisorExists = kopakSnapshot.docs
+                .map(doc => doc.data().supervisorId)
+
+                this.listAdmin = listUsers.filter((data) => data.role == 'admin' && data.show === true && !superVisorExists.includes(data.id))
+                this.listStaff = listUsers.filter((data) => data.role == 'staff' && data.show === true && !superVisorExists.includes(data.id))
 
                 this.loading.hide()
             } catch (e) {
@@ -267,6 +287,38 @@ export default {
                 } else
                     element.show = true
             });
+        },
+        async checkDuplicateByCode() {
+            this.loading = this.$loading.show()
+            const dataQuery = query(
+                collection(db, "kopak"),
+                where("number", '==', this.form.number.toString()),
+            );
+            const querySnapshot = await getDocs(dataQuery);    
+            const data = querySnapshot.docs
+            .map(doc => ({
+                id: doc.id
+            }))
+            .filter(data => data.id != this.id);
+
+            this.loading.hide()
+            return data.length
+        },
+        async checkDuplicateByName() {
+            this.loading = this.$loading.show()
+            const dataQuery = query(
+                collection(db, "kopak"),
+                where("name", '==', this.form.name.toString()),
+            );
+            const querySnapshot = await getDocs(dataQuery);    
+            const data = querySnapshot.docs
+            .map(doc => ({
+                id: doc.id
+            }))
+            .filter(data => data.id != this.id);
+
+            this.loading.hide()
+            return data.length
         }
     }
 }

@@ -114,7 +114,7 @@ import { Field, Form, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 
 import { db } from '@/utils/firebase';
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, getDocs, query, collection, where } from "firebase/firestore";
 
 import { useRoute } from 'vue-router';
 
@@ -147,10 +147,10 @@ export default {
         
         const schema = yup.object({
             name: yup.string().required('Masukan nama'),
-            identity_number: yup.string().required('Masukan NIK'),
+            identity_number: yup.string().required('Masukan NIK').min(16, "NIK minimal 16 digit").max(16, "NIK maksimal 16 digit"),
             email: yup.string().required('Masukan email'),
-            password: !route.params.id ? yup.string().required('Masukan password') : null,
-            password_confirm: !route.params.id ? yup.string().required('Masukan password') : null,
+            password: !route.params.id ? yup.string().required('Masukan password').min(8, 'Masukan password minimal 8 karakter') : null,
+            password_confirm: !route.params.id ? yup.string().required('Masukan password').min(8, 'Masukan password minimal 8 karakter') : null,
         });
 
         const api = axios.create({
@@ -193,10 +193,14 @@ export default {
     },
     methods: {
         async handleSubmit() {
-            if (!this.id) {
-                this.registerAccount(this.form.email, this.form.password)
+            if (this.checkNIK() == 0) {
+                if (!this.id) {
+                    this.registerAccount(this.form.email, this.form.password)
+                } else {
+                    this.saveUser(this.id)
+                }
             } else {
-                this.saveUser(this.id)
+                this.$toast.error('NIK sudah Digunakan');
             }
         },
         async saveUser(uid) {
@@ -264,6 +268,21 @@ export default {
                 this.$toast.error('Konfirmasi password tidak sesuai!');
             }
         },
+        async checkNIK() {
+            const usersQuery = query(
+                collection(db, "users"),
+                where("identity_number", '==', this.form.identity_number),
+                where("email", '!=', this.form.email),
+            );
+            const querySnapshot = await getDocs(usersQuery);                
+            const dataUser = querySnapshot.docs
+            .map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            return dataUser.length
+        }
     }
 }
 </script>
