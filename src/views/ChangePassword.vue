@@ -8,7 +8,7 @@
                         <div class="row justify-content-center">
                             <div class="col-6 mt-3">
                                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                                    <h4 class="mb-sm-0">Ubah Kata Sandi</h4>
+                                    <h4 class="mb-sm-0">Ubah Password</h4>
                                 </div>
                             </div>
                         </div>
@@ -22,7 +22,7 @@
                                             <div class="form-group" :class="{'mb-2': passwordStrength, 'mb-3': !passwordStrength}">
                                                 <label class="form-label">Password Lama</label>
                                                 <div style="position: relative;">
-                                                    <Field :type="togglePasswordVisibility[0] ? 'text' : 'password'" name="currPassword" class="form-control" placeholder="Masukan password lama" v-model="form.currPassword" />
+                                                    <Field :type="togglePasswordVisibility[0] ? 'text' : 'password'" name="currPassword" class="form-control" placeholder="Masukkan password lama" v-model="form.currPassword" />
                                                     <i class="mdi" v-if="form.currPassword" :class="{'mdi-eye': togglePasswordVisibility[0], 'mdi-eye-off': !togglePasswordVisibility[0]}" style="position: absolute; top: 10px; right: 10px; cursor: pointer" @click="togglePasswordVisibility[0] = !togglePasswordVisibility[0]"></i>
                                                 </div>
                                                 <ErrorMessage name="currPassword" :class="'text-danger'" />
@@ -30,7 +30,7 @@
                                             <div class="form-group" :class="{'mb-2': passwordStrength, 'mb-3': !passwordStrength}">
                                                 <label class="form-label">Password Baru</label>
                                                 <div style="position: relative;">
-                                                    <Field :type="togglePasswordVisibility[1] ? 'text' : 'password'" name="password" class="form-control" placeholder="Masukan password" v-model="form.password" />
+                                                    <Field :type="togglePasswordVisibility[1] ? 'text' : 'password'" name="password" class="form-control" placeholder="Masukkan password" v-model="form.password" />
                                                     <i class="mdi" v-if="form.password" :class="{'mdi-eye': togglePasswordVisibility[1], 'mdi-eye-off': !togglePasswordVisibility[1]}" style="position: absolute; top: 10px; right: 10px; cursor: pointer" @click="togglePasswordVisibility[1] = !togglePasswordVisibility[1]"></i>
                                                 </div>
                                                 <ErrorMessage name="password" :class="'text-danger'" />
@@ -42,7 +42,7 @@
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Konfirmasi Password Baru</label>
                                                 <div style="position: relative;">
-                                                    <Field :type="togglePasswordVisibility[2] ? 'text' : 'password'" name="password_confirm" class="form-control" placeholder="Masukan konfirmasi password" v-model="form.confirmPassword" />
+                                                    <Field :type="togglePasswordVisibility[2] ? 'text' : 'password'" name="password_confirm" class="form-control" placeholder="Masukkan konfirmasi password" v-model="form.confirmPassword" />
                                                     <i class="mdi" v-if="form.confirmPassword" :class="{'mdi-eye': togglePasswordVisibility[2], 'mdi-eye-off': !togglePasswordVisibility[2]}" style="position: absolute; top: 10px; right: 10px; cursor: pointer" @click="togglePasswordVisibility[2] = !togglePasswordVisibility[2]"></i>
                                                 </div>
                                                 <ErrorMessage name="password_confirm" :class="'text-danger'" />
@@ -112,9 +112,9 @@ export default {
         const route = useRoute();
         
         const schema = yup.object({
-            currPassword: !route.params.id ? yup.string().required('Masukan password lama') : null,
-            password: !route.params.id ? yup.string().required('Masukan password').min(8, 'Password minimal 8 karakter') : null,
-            password_confirm: !route.params.id ? yup.string().required('Masukan password').min(8, 'Password minimal 8 karakter') : null,
+            currPassword: !route.params.id ? yup.string().required('Masukkan password lama') : null,
+            password: !route.params.id ? yup.string().required('Masukkan password').min(8, 'Password minimal 8 karakter') : null,
+            password_confirm: !route.params.id ? yup.string().required('Masukkan password').min(8, 'Password minimal 8 karakter') : null,
         });
 
         const api = axios.create({
@@ -149,7 +149,7 @@ export default {
             this.$swal
                 .fire({
                     title: 'Apakah kamu yakin ?',
-                    html: `Kamu akan mengubah kata sandi`,
+                    html: `Kamu akan mengubah password`,
                     icon: 'warning',
                     showDenyButton: true,
                     showCancelButton: false,
@@ -161,9 +161,9 @@ export default {
                 .then(async (result) => {
                     if (result.isConfirmed) {
                         if (this.form.password != this.form.confirmPassword) {
-                            this.$toast.error('Konfirmasi kata sandi tidak sesuai!');
+                            this.$toast.error('Konfirmasi password tidak sesuai!');
                         } else if (this.form.currPassword == this.form.password) {
-                            this.$toast.error('Kata sandi yang digunakan sama dengan sebelumnya!');
+                            this.$toast.error('Password yang digunakan sama dengan sebelumnya!');
                         } else {
                             const auth = getAuth()
                             const user = auth.currentUser;
@@ -177,7 +177,7 @@ export default {
                                 .then(() => {
                                     updatePassword(user, this.form.password)
                                     .then(async () => {
-                                        this.$toast.success('Kata sandi berhasil diubah');
+                                        this.$toast.success('Password berhasil diubah');
                                         
                                         await signOut(auth);
                                         localStorage.removeItem('token')
@@ -192,13 +192,13 @@ export default {
                                     });
                                 })
                                 .then(() => {
-                                    console.log("Kata sandi berhasil diubah!");
+                                    console.log("Password berhasil diubah!");
                                 })
                                 .catch((error) => {
                                     console.error("Error:", error.message);
                                 });
                             } else {
-                                this.$toast.error('Anda harus masuk untuk mengubah kata sandi!.');
+                                this.$toast.error('Anda harus masuk untuk mengubah password!.');
                             }
                         }
                     }

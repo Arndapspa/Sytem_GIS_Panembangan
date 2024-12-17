@@ -22,30 +22,30 @@
                                             <div class="form-group row mb-3">
                                                 <div class="col-md-6">
                                                     <label class="form-label">NOP</label>
-                                                    <Field type="number" name="nop" class="form-control custom-rounded-medium" placeholder="Masukan nop" v-model="form.nop" />
+                                                    <Field type="number" name="nop" class="form-control custom-rounded-medium" placeholder="Masukkan nop" v-model="form.nop" />
                                                     <ErrorMessage name="nop" :class="'text-danger'" />
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label">Tahun Pajak</label>
-                                                    <Field type="number" name="tax_year" class="form-control custom-rounded-medium" placeholder="Masukan tahun pajak" v-model="form.tax_year"/>
+                                                    <Field type="number" name="tax_year" class="form-control custom-rounded-medium" placeholder="Masukkan tahun pajak" v-model="form.tax_year"/>
                                                     <ErrorMessage name="tax_year" :class="'text-danger'" />
                                                 </div>
                                             </div>
                                             <div class="form-group row mb-3">
                                                 <div class="col-md-6">
                                                     <label class="form-label">Nama Wajib Pajak</label>
-                                                    <Field type="text" name="taxpayer_name" class="form-control custom-rounded-medium" placeholder="Masukan nama wajib pajak" v-model="form.taxpayer_name"/>
+                                                    <Field type="text" name="taxpayer_name" class="form-control custom-rounded-medium" placeholder="Masukkan nama wajib pajak" v-model="form.taxpayer_name"/>
                                                     <ErrorMessage name="taxpayer_name" :class="'text-danger'" />
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="row">
                                                         <div class="col-md-6">
                                                             <label class="form-label">RW</label>
-                                                            <Field type="text" name="rw" class="form-control custom-rounded-medium" placeholder="Masukan RW" v-model="form.rw"/>
+                                                            <Field type="text" name="rw" class="form-control custom-rounded-medium" placeholder="Masukkan RW" v-model="form.rw"/>
                                                         </div>
                                                         <div class="col-md-6">
                                                             <label class="form-label">RT</label>
-                                                            <Field type="text" name="rt" class="form-control custom-rounded-medium" placeholder="Masukan RT" v-model="form.rt"/>
+                                                            <Field type="text" name="rt" class="form-control custom-rounded-medium" placeholder="Masukkan RT" v-model="form.rt"/>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -53,31 +53,31 @@
                                             <div class="form-group row mb-3">
                                                 <div class="col-md-6">
                                                     <label class="form-label">Kelurahan</label>
-                                                    <Field type="text" name="village" class="form-control custom-rounded-medium" placeholder="Masukan nama kelurahan" v-model="form.village"/>
+                                                    <Field type="text" name="village" class="form-control custom-rounded-medium" placeholder="Masukkan nama kelurahan" v-model="form.village"/>
                                                     <ErrorMessage name="village" :class="'text-danger'" />
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label">Kabupaten</label>
-                                                    <Field type="text" name="district" class="form-control custom-rounded-medium" placeholder="Masukan nama Kabupaten" v-model="form.district"/>
+                                                    <Field type="text" name="district" class="form-control custom-rounded-medium" placeholder="Masukkan nama Kabupaten" v-model="form.district"/>
                                                     <ErrorMessage name="district" :class="'text-danger'" />
                                                 </div>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Alamat</label>
-                                                <Field as="textarea" name="address" rows="4" class="form-control custom-rounded-medium" placeholder="Masukan kode" v-model="form.address"/>
+                                                <Field as="textarea" name="address" rows="4" class="form-control custom-rounded-medium" placeholder="Masukkan kode" v-model="form.address"/>
                                             </div>
                                             <div class="form-group row mb-3">
                                                 <div class="col-md-4">
                                                     <label class="form-label">Luas Bumi</label>
-                                                    <Field type="number" name="land" class="form-control custom-rounded-medium" placeholder="Masukan luas bumi" v-model="form.land"/>
+                                                    <Field type="number" name="land" class="form-control custom-rounded-medium" placeholder="Masukkan luas bumi" v-model="form.land"/>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="form-label">Luas Bangunan</label>
-                                                    <Field type="number" name="building" class="form-control custom-rounded-medium" placeholder="Masukan luas bangunan" v-model="form.building"/>
+                                                    <Field type="number" name="building" class="form-control custom-rounded-medium" placeholder="Masukkan luas bangunan" v-model="form.building"/>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="form-label">Letak Objek</label>
-                                                    <Field type="text" name="object" class="form-control custom-rounded-medium" placeholder="Masukan letak objek" v-model="form.object"/>
+                                                    <Field type="text" name="object" class="form-control custom-rounded-medium" placeholder="Masukkan letak objek" v-model="form.object"/>
                                                 </div>
                                             </div>
                                         </div>
@@ -135,11 +135,11 @@ export default {
     },
     setup() {
         const schema = yup.object({
-            nop: yup.number().typeError('NOP harus berupa angka').required('Masukan NOP'),
-            tax_year: yup.string().required('Masukan Tahun Pajak'),
-            taxpayer_name: yup.string().required('Masukan Nama Wajib Pajak'),
-            village: yup.string().required('Masukan Kelurahan'),
-            district: yup.string().required('Masukan Kabupaten'),
+            nop: yup.number().typeError('NOP harus berupa angka').required('Masukkan NOP'),
+            tax_year: yup.string().required('Masukkan Tahun Pajak'),
+            taxpayer_name: yup.string().required('Masukkan Nama Wajib Pajak'),
+            village: yup.string().required('Masukkan Kelurahan'),
+            district: yup.string().required('Masukkan Kabupaten'),
         });
 
         return {

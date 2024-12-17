@@ -22,14 +22,8 @@ export default new Vuex.Store({
     actions: {},
     modules: {},
     getters: {
-        dataUser: (state) => {
+        dataUser: async (state) => {
             return state.user;
-        },
-        getRWId: (state) => {
-            return state.rwId;
-        },
-        getRT: (state) => {
-            return state.rtId;
         },
         logout: (state) => {
             state.user = null

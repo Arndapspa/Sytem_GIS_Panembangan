@@ -17,19 +17,19 @@
                                      <img src="@/assets/images/logo.png" height="80">
                                  </div>
                                 <h4 class="font-size-20 mt-2 text-center text-black">Login</h4>
-                                <p class="mb-4 text-center text-muted font-size-12">Silahkan masukan email dan password.</p>
+                                <p class="mb-4 text-center text-muted font-size-12">Silahkan masukkan email dan password.</p>
                                 <Form :validation-schema="schema" @submit="handleSubmit" class="form-horizontal">
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="mb-3">
                                                 <label class="form-label" for="email">Email</label>
-                                                <Field type="text" class="form-control" id="email" name="username" placeholder="Masukan email" v-model="username" />
+                                                <Field type="text" class="form-control" id="email" name="username" placeholder="Masukkan email" v-model="username" />
                                                 <ErrorMessage name="username" :class="'text-danger'" />
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label" for="userpassword">Password</label>
                                                 <div style="position: relative;">
-                                                    <Field :type="togglePasswordVisibility ? 'text' : 'password'" name="password" class="form-control" placeholder="Masukan password" v-model="password" />
+                                                    <Field :type="togglePasswordVisibility ? 'text' : 'password'" name="password" class="form-control" placeholder="Masukkan password" v-model="password" />
                                                     <i class="mdi" v-if="password" :class="{'mdi-eye': togglePasswordVisibility, 'mdi-eye-off': !togglePasswordVisibility}" style="position: absolute; top: 10px; right: 10px; cursor: pointer" @click="togglePasswordVisibility = !togglePasswordVisibility"></i>
                                                 </div>
                                                 <ErrorMessage name="password" :class="'text-danger'" />
@@ -77,8 +77,8 @@ export default {
     },
     setup() {
         const schema = yup.object({
-            username: yup.string().required('Masukan email'),
-            password: yup.string().required('Masukan password'),
+            username: yup.string().required('Masukkan email'),
+            password: yup.string().required('Masukkan password'),
         });
 
         return {

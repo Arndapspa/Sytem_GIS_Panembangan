@@ -23,12 +23,12 @@
                                                 <div :class="{'col-md-6': !id, 'col-md-12': id}">
                                                     <div class="form-group mb-3">
                                                         <label class="form-label">Nama</label>
-                                                        <Field type="text" name="name" class="form-control custom-rounded-medium" placeholder="Masukan nama" v-model="form.name"/>
+                                                        <Field type="text" name="name" class="form-control custom-rounded-medium" placeholder="Masukkan nama" v-model="form.name"/>
                                                         <ErrorMessage name="name" :class="'text-danger'" />
                                                     </div>
                                                     <div class="form-group mb-3">
                                                         <label class="form-label">NIK</label>
-                                                        <Field type="number" name="identity_number" class="form-control custom-rounded-medium" placeholder="Masukan NIK" v-model="form.identity_number"/>
+                                                        <Field type="number" name="identity_number" class="form-control custom-rounded-medium" placeholder="Masukkan NIK" v-model="form.identity_number"/>
                                                         <ErrorMessage name="identity_number" :class="'text-danger'" />
                                                     </div>
                                                     <div class="form-group mb-3">
@@ -37,7 +37,7 @@
                                                     </div>
                                                     <div class="form-group mb-3">
                                                         <label class="form-label">Email</label>
-                                                        <Field type="text" name="email" :disabled="id != ''" class="form-control custom-rounded-medium mb-2" placeholder="Masukan email" v-model="form.email"/>
+                                                        <Field type="text" name="email" :disabled="id != ''" class="form-control custom-rounded-medium mb-2" placeholder="Masukkan email" v-model="form.email"/>
                                                         <ErrorMessage name="email" :class="'text-danger'" />
                                                          <div class="alert alert-info custom-rounded-medium p-2">
                                                             <i class="mdi mdi-information me-2"></i> Email ini akan digunakan sebagai username untuk login aplikasi
@@ -45,19 +45,19 @@
                                                     </div>
                                                     <div class="form-group mb-3">
                                                         <label class="form-label">Alamat</label>
-                                                        <Field as="textarea" name="address" rows="4" class="form-control custom-rounded-medium" placeholder="Masukan alamat" v-model="form.address"/>
+                                                        <Field as="textarea" name="address" rows="4" class="form-control custom-rounded-medium" placeholder="Masukkan alamat" v-model="form.address"/>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6" v-if="!id">
                                                     <div class="custom-rounded-medium p-3 alert alert-primary">
                                                         <h5><i class="mdi mdi-information me-3"></i>Informasi Akun</h5>
-                                                        <p>Silahkan masukan password untuk login ke aplikasi</p>
+                                                        <p>Silahkan masukkan password untuk login ke aplikasi</p>
                                                         <div class="spacer-medium"></div>
         
                                                         <div class="form-group" :class="{'mb-2': passwordStrength, 'mb-3': !passwordStrength}">
                                                             <label class="form-label">Password</label>
                                                             <div style="position: relative;">
-                                                                <Field :type="togglePasswordVisibility[0] ? 'text' : 'password'" name="password" class="form-control" placeholder="Masukan password" v-model="form.password" />
+                                                                <Field :type="togglePasswordVisibility[0] ? 'text' : 'password'" name="password" class="form-control" placeholder="Masukkan password" v-model="form.password" />
                                                                 <i class="mdi" v-if="form.password" :class="{'mdi-eye': togglePasswordVisibility[0], 'mdi-eye-off': !togglePasswordVisibility[0]}" style="position: absolute; top: 10px; right: 10px; cursor: pointer" @click="togglePasswordVisibility[0] = !togglePasswordVisibility[0]"></i>
                                                             </div>
                                                             <ErrorMessage name="password" :class="'text-danger'" />
@@ -69,7 +69,7 @@
                                                         <div class="form-group mb-3">
                                                             <label class="form-label">Konfirmasi Password</label>
                                                             <div style="position: relative;">
-                                                                <Field :type="togglePasswordVisibility[1] ? 'text' : 'password'" name="password_confirm" class="form-control" placeholder="Masukan konfirmasi password" v-model="form.confirmPassword" />
+                                                                <Field :type="togglePasswordVisibility[1] ? 'text' : 'password'" name="password_confirm" class="form-control" placeholder="Masukkan konfirmasi password" v-model="form.confirmPassword" />
                                                                 <i class="mdi" v-if="form.confirmPassword" :class="{'mdi-eye': togglePasswordVisibility[1], 'mdi-eye-off': !togglePasswordVisibility[1]}" style="position: absolute; top: 10px; right: 10px; cursor: pointer" @click="togglePasswordVisibility[1] = !togglePasswordVisibility[1]"></i>
                                                             </div>
                                                             <ErrorMessage name="password_confirm" :class="'text-danger'" />
@@ -146,11 +146,11 @@ export default {
         const route = useRoute();
         
         const schema = yup.object({
-            name: yup.string().required('Masukan nama'),
-            identity_number: yup.string().required('Masukan NIK').min(16, "NIK minimal 16 digit").max(16, "NIK maksimal 16 digit"),
-            email: yup.string().required('Masukan email'),
-            password: !route.params.id ? yup.string().required('Masukan password').min(8, 'Masukan password minimal 8 karakter') : null,
-            password_confirm: !route.params.id ? yup.string().required('Masukan password').min(8, 'Masukan password minimal 8 karakter') : null,
+            name: yup.string().required('Masukkan nama'),
+            identity_number: yup.string().required('Masukkan NIK').min(16, "NIK minimal 16 digit").max(16, "NIK maksimal 16 digit"),
+            email: yup.string().required('Masukkan email'),
+            password: !route.params.id ? yup.string().required('Masukkan password').min(8, 'Masukkan password minimal 8 karakter') : null,
+            password_confirm: !route.params.id ? yup.string().required('Masukkan password').min(8, 'Masukkan password minimal 8 karakter') : null,
         });
 
         const api = axios.create({
@@ -232,7 +232,7 @@ export default {
                 let message = error.message || error.code
 
                 if (message == 'auth/email-already-in-use')
-                    message = 'Email sudah terdaftar, silahkan masukan email lain!'
+                    message = 'Email sudah terdaftar, silahkan masukkan email lain!'
                 else if (message == 'auth/invalid-email')
                     message = 'Email yang dimasukan tidak valid!'
                 else if (message == 'auth/weak-password')

@@ -159,7 +159,7 @@
                                                     </div>
                                                 </router-link>
                                                 <div>
-                                                    <button type="button" class="btn btn-link text-dark fw-bold text-decoration-none" @click="deleteLocation"><i class="mdi mdi-trash-can-outline me-2"></i>Hapus Lokasi</button>
+                                                    <button type="button" class="btn btn-link text-dark fw-bold text-decoration-none" @click="deleteLocation" v-if="detailKopak.supervisorId == $store.state.user?.id"><i class="mdi mdi-trash-can-outline me-2"></i>Hapus Lokasi</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -171,7 +171,7 @@
                                         </template>
                                     </div>
                                     <div class="card-footer text-end" v-if="showDetail && detailMap.data?.nop">
-                                        <button type="button" class="btn btn-link text-dark fw-bold me-2 text-decoration-none" @click="deleteDataPBB"><i class="mdi mdi-trash-can-outline me-2"></i>Hapus PBB</button>
+                                        <button type="button" class="btn btn-link text-dark fw-bold me-2 text-decoration-none" @click="deleteDataPBB" v-if="detailKopak.supervisorId == $store.state.user?.id"><i class="mdi mdi-trash-can-outline me-2"></i>Hapus PBB</button>
                                         <router-link :to="`/master-kopak/form/detail/${id}/${detailMap.id}/${detailMap.data.primary_id}`" class="btn btn-primary custom-rounded-medium">Edit Data PBB</router-link>
                                     </div>
                                     <!-- end card-body -->

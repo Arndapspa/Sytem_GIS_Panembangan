@@ -8,7 +8,7 @@
                         <div class="row justify-content-center">
                             <div class="col-6 mt-3">
                                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                                    <h4 class="mb-sm-0">Profile</h4>
+                                    <h4 class="mb-sm-0">Profil</h4>
                                 </div>
                             </div>
                         </div>
@@ -21,24 +21,37 @@
                                             <div class="spacer-medium"></div>
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Nama</label>
-                                                <div name="name" class="form-control custom-rounded-medium bg-white" disabled>{{ $store.state.user?.name }}</div>
+                                                <div class="form-control custom-rounded-medium bg-white" v-if="$store.state.user?.role == 'superadmin'">{{ $store.state.user?.name }}</div>
+                                                <template v-else>
+                                                    <Field name="name" class="form-control custom-rounded-medium bg-white" placeholder="Masukkan nama lengkap" v-model="form.name"></Field>
+                                                    <ErrorMessage name="name" :class="'text-danger'" />
+                                                </template>
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Email</label>
-                                                <div name="name" class="form-control custom-rounded-medium bg-white" disabled>{{ $store.state.user?.email }}</div>
+                                                <div name="name" class="form-control custom-rounded-medium bg-light" disabled>{{ $store.state.user?.email }}</div>
                                             </div>
-                                            <div class="form-group mb-3" v-if="$store.state.user?.role != 'superadmin'">
-                                                <label class="form-label">No. Telepon</label>
-                                                <div name="name" class="form-control custom-rounded-medium bg-white" disabled>{{ $store.state.user?.phone || '-' }}</div>
-                                            </div>
-                                            <div class="form-group mb-3" v-if="['superadmin', 'admin'].indexOf($store.state.user?.role) < 0">
-                                                <label class="form-label">Alamat</label>
-                                                <div name="name" class="form-control custom-rounded-medium bg-white" style="height: 200px" disabled>{{ $store.state.user?.address || '-' }}</div>
-                                            </div>
+                                            <template v-if="$store.state.user?.role != 'superadmin'">
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label">NIK</label>
+                                                    <Field name="identity_number" class="form-control custom-rounded-medium bg-white" placeholder="Masukkan NIK" v-model="form.identity_number"></Field>
+                                                    <ErrorMessage name="identity_number" :class="'text-danger'" />
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label">No. Telepon</label>
+                                                    <Field type="text" v-mask="['+62 ###-####-####']" name="phone" class="form-control custom-rounded-medium" placeholder="+62 878-xxxx-xxxx" v-model="form.phone" />
+                                                    <ErrorMessage name="phone" :class="'text-danger'" />
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label">Alamat</label>
+                                                    <textarea name="address" class="form-control custom-rounded-medium bg-white" rows="5" style="height: 200px" v-model="form.address"></textarea>
+                                                </div>
+                                            </template>
                                         </div>
                                         <div class="card-footer card-footer-custom-radius-medium">
                                             <div class="d-flex justify-content-end">
                                                 <button @click="$router.push('/')" class="btn border-light bg-white custom-rounded-medium">Kembali</button>
+                                                <button type="submit" class="btn btn-primary custom-rounded-medium ms-2" v-if="$store.state.user?.role != 'superadmin'">Simpan</button>
                                             </div>
                                         </div>
                                     </div>
@@ -58,8 +71,8 @@ import 'simplebar-core/dist/simplebar.css';
 import { Field, Form, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 
-import { db } from '@/utils/firebase';
-import { doc, setDoc, addDoc, getDoc, getDocs, collection, query, orderBy } from "firebase/firestore";
+import { db, auth } from '@/utils/firebase';
+import { doc, updateDoc } from "firebase/firestore";
 
 import { useRoute } from 'vue-router';
 
@@ -69,10 +82,67 @@ export default {
     name: 'Profile',
     data() {
         return {
+            form :{
+                name: '',
+                identity_number: '',
+                phone: '',
+                address: '',
+            },
+            loading: null
+        }
+    },
+    computed: {
+        dataUser() {
+            return this.$store.state.user
         }
     },
     components: {
-        simplebar
+        simplebar, Field, Form, ErrorMessage
     },
+    watch: {
+        dataUser(newValue, oldValue) {
+            this.form.name = newValue.name
+            this.form.identity_number = newValue.identity_number
+            this.form.phone = newValue.phone
+            this.form.address = newValue.address
+        },
+    },
+    setup() {
+        const route = useRoute();
+        
+        const schema = yup.object({
+            name: !route.params.id ? yup.string().required('Masukkan nama') : null,
+            phone: !route.params.id ? yup.string().required('Masukkan no. telepon') : null,
+            identity_number: !route.params.id ? yup.string().required('Masukkan password').min(16, 'NIK minimal 16 karakter').max(16, 'NIK maksimal 16 karakter') : null,
+        });
+
+        const api = axios.create({
+            timeout: 30000,
+        });
+
+        return {
+            schema,
+            api
+        }
+    },
+    methods: {
+        async handleSubmit() {
+            try {
+                this.loading = this.$loading.show()
+                await updateDoc(doc(db, "users", auth.currentUser.uid), this.form);
+                
+                this.loading.hide()
+                this.$toast.success('Profil Berhasil Disimpan');
+            } catch(error) {                
+                if (this.loading != null)
+                    this.loading.hide()
+                this.fetch = false
+
+                let message = error.message || error.code
+                
+                this.$toast.error(message);
+            }
+        },
+    }
 }
 </script>

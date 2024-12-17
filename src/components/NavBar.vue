@@ -17,8 +17,7 @@
                     </a>
                 </div>
 
-                <button type="button" class="btn btn-sm px-3 font-size-24 d-lg-none header-item" data-bs-toggle="collapse"
-                    data-bs-target="#topnav-menu-content">
+                <button type="button" class="btn btn-sm px-3 font-size-24 d-lg-none header-item" data-bs-toggle="collapse" data-bs-target="#topnav-menu-content" @click="toggleMenu">
                     <i class="ri-menu-2-line align-middle"></i>
                 </button>
             </div>
@@ -44,7 +43,7 @@
     <div class="topnav">
             <div class="container-fluid">
                 <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
-                    <div class="collapse navbar-collapse">
+                    <div class="collapse navbar-collapse" :class="{'show': this.showMenu}">
                         <ul class="navbar-nav">
                             <template v-for="item in listMenu">
                                 <li class="nav-item" v-if="item.role.indexOf($store.state.user?.role) != -1 || item.role == 'all'">
@@ -70,6 +69,7 @@ export default {
     name: 'NavBar',
     data() {
         return {
+            showMenu: false,
             listMenu: [
                 {
                     title: 'Dashboard',
@@ -101,9 +101,19 @@ export default {
     components: {
         simplebar,
     },
-    computed: {},
-    mounted() {},
+    watch: {
+        $route(to, from) {
+            this.showMenu = false
+        },
+    },
     methods: {
+        toggleMenu() {
+            const isShowMenu = localStorage.getItem('show-menu') || this.showMenu
+
+            this.showMenu = isShowMenu == 1
+            
+            localStorage.setItem('show-menu', isShowMenu == 1 ? 0 : 1)
+        },
         async logout() {
             this.$swal
                 .fire({

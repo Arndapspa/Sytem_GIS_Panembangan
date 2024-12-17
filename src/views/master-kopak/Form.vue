@@ -22,12 +22,12 @@
                                             <div class="form-group row mb-3">
                                                 <div class="col-md-6">
                                                     <label class="form-label">Nama</label>
-                                                    <Field type="text" name="name" class="form-control custom-rounded-medium" placeholder="Masukan nama" v-model="form.name"/>
+                                                    <Field type="text" name="name" class="form-control custom-rounded-medium" placeholder="Masukkan nama" v-model="form.name"/>
                                                     <ErrorMessage name="name" :class="'text-danger'" />
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label">No Kopak</label>
-                                                    <Field type="number" name="number" class="form-control custom-rounded-medium" placeholder="Masukan no kopak" v-model="form.number"/>
+                                                    <Field type="number" name="number" class="form-control custom-rounded-medium" placeholder="Masukkan no kopak" v-model="form.number"/>
                                                 </div>
                                             </div>
                                             <div class="form-group row mb-3">
@@ -35,24 +35,24 @@
                                                     <div class="row">
                                                         <div class="col-md-6">
                                                             <label class="form-label">RW</label>
-                                                            <Field type="number" name="rw" class="form-control custom-rounded-medium" placeholder="Masukan RW kopak" v-model="form.rw"/>
+                                                            <Field type="number" name="rw" class="form-control custom-rounded-medium" placeholder="Masukkan RW kopak" v-model="form.rw"/>
                                                         </div>
                                                         <div class="col-md-6">
                                                             <label class="form-label">RT</label>
-                                                            <Field type="number" name="rt" class="form-control custom-rounded-medium" placeholder="Masukan RT kopak" v-model="form.rt"/>
+                                                            <Field type="number" name="rt" class="form-control custom-rounded-medium" placeholder="Masukkan RT kopak" v-model="form.rt"/>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label">Luas Wilayah (m<sup>2</sup>)</label>
-                                                    <Field type="text" name="buildingArea" class="form-control custom-rounded-medium" placeholder="Masukan luas wilayah" v-model="form.buildingArea"/>
+                                                    <Field type="text" name="buildingArea" class="form-control custom-rounded-medium" placeholder="Masukkan luas wilayah" v-model="form.buildingArea"/>
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label class="form-label">Jumlah WP</label>
-                                                        <Field type="text" name="totalWP" class="form-control custom-rounded-medium" placeholder="Masukan jumlah WP" v-model="form.totalWP"/>
+                                                        <Field type="text" name="totalWP" class="form-control custom-rounded-medium" placeholder="Masukkan jumlah WP" v-model="form.totalWP"/>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
@@ -85,11 +85,11 @@
                                             <div class="form-group row">
                                                 <div class="col-md-6">
                                                     <label class="form-label">Latitude</label>
-                                                    <Field type="number" name="latitude" class="form-control custom-rounded-medium" placeholder="Masukan latitude" v-model="form.latitude"/>
+                                                    <Field type="number" name="latitude" class="form-control custom-rounded-medium" placeholder="Masukkan latitude" v-model="form.latitude"/>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label">Longitude</label>
-                                                    <Field type="number" name="longitude" class="form-control custom-rounded-medium" placeholder="Masukan longitude" v-model="form.longitude"/>
+                                                    <Field type="number" name="longitude" class="form-control custom-rounded-medium" placeholder="Masukkan longitude" v-model="form.longitude"/>
                                                 </div>
                                             </div>
                                         </div>
@@ -155,8 +155,8 @@ export default {
         const route = useRoute();
         
         const schema = yup.object({
-            name: yup.string().required('Masukan nama'),
-            supervisorId: yup.string().required('Masukan penanggung jawab'),
+            name: yup.string().required('Masukkan nama'),
+            supervisorId: yup.string().required('Masukkan penanggung jawab'),
         });
 
         const api = axios.create({
