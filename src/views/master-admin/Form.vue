@@ -193,7 +193,8 @@ export default {
     },
     methods: {
         async handleSubmit() {
-            if (this.checkNIK() == 0) {
+            const checkExistsNIK = await this.checkNIK()
+            if (checkExistsNIK == 0) {
                 if (!this.id) {
                     this.registerAccount(this.form.email, this.form.password)
                 } else {
