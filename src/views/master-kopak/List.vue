@@ -174,6 +174,12 @@ export default {
                         try {
                             this.loading = this.$loading.show()
                             this.fetch = true
+                            const listLocationId = await this.fetchDataLocation(data.id)
+                            if (listLocationId) {
+                                listLocationId.forEach(async (element) => {
+                                    await deleteDoc(doc(db, "location", element));
+                                });
+                            }
                             await deleteDoc(doc(db, "kopak", data.id));
                             this.fetch = false
                             this.loading.hide()
@@ -186,6 +192,22 @@ export default {
                         }
                     }
                 });
+        },
+        async fetchDataLocation(kopakId) {
+            try {
+                const usersQuery = query(
+                    collection(db, "location"),
+                    where('kopak_id', '==', kopakId)
+                );
+                const querySnapshot = await getDocs(usersQuery);                
+                const dataList = querySnapshot.docs
+                .map(doc => doc.id)
+
+                return dataList
+            } catch (e) {
+                console.log("Error fetching documents: " + e.message);
+                return []
+            }
         },
         showData(reset=false) {
             if (reset) {

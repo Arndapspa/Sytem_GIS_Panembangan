@@ -83,12 +83,12 @@ export default {
                     url: '/master-admin',
                     role: ['superadmin'],
                 },
-                // {
-                //     title: 'Petugas',
-                //     icon: 'mdi mdi-account-group-outline',
-                //     url: '/master-staff',
-                //     role: ['superadmin', 'admin'],
-                // },
+                {
+                    title: 'Petugas',
+                    icon: 'mdi mdi-account-group-outline',
+                    url: '/master-staff',
+                    role: ['superadmin', 'admin'],
+                },
                 {
                     title: 'Kopak',
                     icon: 'mdi mdi-map-marker-radius-outline',

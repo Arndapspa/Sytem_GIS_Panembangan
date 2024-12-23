@@ -11,7 +11,8 @@
                     v-for="result in searchResults"
                     :key="result.name"
                     @click="onSelected(result)"
-                    class="p-3 border-bottom autocomplete-item"
+                    class="p-3 autocomplete-item"
+                    :class="{'border-bottom': searchResults.legth}"
                     style="cursor: pointer">
                     {{ result.name }}
                 </li>
