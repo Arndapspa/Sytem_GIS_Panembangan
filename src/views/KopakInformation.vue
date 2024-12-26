@@ -409,7 +409,7 @@ export default {
                     polygon: false,
                     rectangle: false,
                     circle: false,
-                    marker: true,
+                    marker: false,
                     circlemarker: false,
                 },
             });

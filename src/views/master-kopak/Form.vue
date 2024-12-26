@@ -64,7 +64,7 @@
                                                         </Field>
                                                         <ErrorMessage name="supervisorId" :class="'text-danger'" />
                                                     </div>
-                                                    <!-- <div class="d-block">
+                                                    <div class="d-block">
                                                         <div class="form-group">
                                                             <label class="form-label">Daftar Petugas</label>
                                                             <div class="d-block bg-light custom-rounded p-3 mb-2" v-for="staff, index in form.staff" :key="index">
@@ -79,10 +79,10 @@
                                                                 <button type="button" class="btn btn-outline-primary custom-rounded-medium" @click="addStaff"><i class="mdi mdi-plus me-1"></i>Tambah Petugas</button>
                                                             </div>
                                                         </div>
-                                                    </div> -->
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="form-group row">
+                                            <div class="d-none form-group row">
                                                 <div class="col-md-6">
                                                     <label class="form-label">Latitude</label>
                                                     <Field type="number" name="latitude" class="form-control custom-rounded-medium" placeholder="Masukkan latitude" v-model="form.latitude"/>

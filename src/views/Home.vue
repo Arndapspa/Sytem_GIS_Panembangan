@@ -60,7 +60,7 @@
                                 </div>
                                 <!-- end card -->
                             </div>
-                            <div class="col-md-4 d-none" v-if="['admin', 'superadmin'].indexOf($store.state.user?.role) != -1">
+                            <div class="col-md-4" v-if="['admin', 'superadmin'].indexOf($store.state.user?.role) != -1">
                                 <div class="card custom-rounded-medium">
                                     <div class="card-body">
                                         <div class="d-flex">
