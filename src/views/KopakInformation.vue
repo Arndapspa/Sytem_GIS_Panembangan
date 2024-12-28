@@ -64,6 +64,16 @@
                                      </div>
                                 </div>
                                 <!-- end card -->
+                                    <div class="card custom-rounded-medium">
+                                        <div class="card-body">
+                                            <h6 class="mb-3">Daftar Kopak Lainnya</h6>
+                                            <div class="grid">
+                                                <template v-for="item in listKopak">
+                                                    <div class="btn btn-outline-primary custom-rounded" @click="openKopak(item.id)" v-if="item.id != id">{{ item.name }}</div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
                             </div>
                             <div class="col-md-9">
                                 <div class="card custom-rounded-medium">
@@ -154,7 +164,7 @@
                                             <div class="d-block bg-white custom-rounded-medium text-center p-4" style="border: 1px dashed #909090 !important;" v-else>
                                                 <img src="@/assets/images/empty-inbox.png" style="width: 150px;" class="img-fluid mb-3">
                                                 <div class="mb-3">Data PBB belum ada pada titik koordinat ini</div>
-                                                <router-link :to="`/master-kopak/form/detail/${id}/${detailMap.id}`" class="btn btn-primary custom-rounded-medium mb-3">
+                                                <router-link :to="`/master-kopak/form/detail/${detailMap.kopak_id}/${detailMap.id}`" class="btn btn-primary custom-rounded-medium mb-3">
                                                     <div class="d-flex align-items-center justify-content-center p-2">
                                                         <i class="mdi mdi-plus fs-5 me-1 m-0 pb-0"></i>
                                                         <div>
@@ -190,6 +200,14 @@
         </div>
     </main>
 </template>
+<style scoped>
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 15px;
+}
+</style>
 <script>
 import simplebar from 'simplebar-vue';
 import 'simplebar-core/dist/simplebar.css';
@@ -211,7 +229,7 @@ import { find, findIndex, uniqBy, includes, map } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
 import { db } from '@/utils/firebase';
-import { doc, addDoc, updateDoc, getDocs, getDoc, collection, query, where, deleteDoc } from "firebase/firestore";
+import { doc, addDoc, updateDoc, getDocs, getDoc, collection, query, where, deleteDoc, orderBy } from "firebase/firestore";
 
 import Autocomplete from '@/components/Autocomplete.vue';
 
@@ -243,18 +261,36 @@ export default {
             },
             drawnItems: null,
             searchBarVisible: false,
+            listKopak: []
         }
     },
     watch: {
         ownerName(value) {
             if (value != this.ownerSelected.name) {
                 this.polygons.forEach(element => {
-                    element.setStyle({
-                        color: "blue", // Warna garis tepi
-                        fillColor: "rgba(0, 0, 255, 1)", // Warna isian (dengan transparansi)
-                    });
+                    const checkDetailPolygon = find(this.allPolygons, {id: element.options.id})
+
+                    if (checkDetailPolygon.is_owner) {
+                        element.setStyle({
+                            color: "blue", // Warna garis tepi
+                            fillColor: "rgba(0, 0, 255, 1)", // Warna isian (dengan transparansi)
+                        });
+                    } else {
+                        element.setStyle({
+                            color: "#202020", // Warna garis tepi
+                            fillColor: "rgba(0, 0, 0, 1)", // Warna isian (dengan transparansi)
+                        });
+                    }
                 });
             }
+        },
+        '$route.params.id'(newId) {
+            this.id = newId;
+
+            this.$router.replace({ path: '/' })
+            setTimeout(() => {
+                this.$router.replace('/kopak/detail/' + newId);
+            }, 100);
         },
     },
     components: {
@@ -270,7 +306,8 @@ export default {
             this.detailKopak = await this.fetchDetailKopak(this.id);
             
             if (this.detailKopak) {
-                this.getSuppervisor()
+                await this.fetchDataKopak()
+                await this.getSuppervisor()
                 await this.fetchDataLocation()
                 await this.fetchDataPBB()
                 if (this.detailKopak.latitude && this.detailKopak.longitude)
@@ -320,7 +357,8 @@ export default {
                 this.loading = this.$loading.show()
                 const usersQuery = query(
                     collection(db, "pbb"),
-                    where('kopak_id', '==', this.id),
+                    // where('kopak_id', '==', this.id),
+                    where('location_id', 'in', map(this.allPolygons, 'id'))
                 );
                 const querySnapshot = await getDocs(usersQuery) 
                 const result = querySnapshot.docs
@@ -741,6 +779,39 @@ export default {
             }
             this.searchBarVisible = !this.searchBarVisible; // Toggle status
         },
+        async fetchDataKopak() {
+            try {
+                this.loading = this.$loading.show()
+
+                const role = this.$store.state.user?.role
+                const userId = this.$store.state.user?.id
+                
+                const kopakQuery = query(
+                    collection(db, "kopak"),
+                    orderBy("createdAt", 'asc'),
+                );
+                const kopakSnapshot = await getDocs(kopakQuery);                
+                this.listKopak = kopakSnapshot.docs
+                .map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }))
+                .filter(data => {
+                    if (role == 'staff')
+                        if (data.staff.indexOf(userId) != -1)
+                            return data
+                    if (['superadmin', 'admin'].indexOf(role) != -1)
+                        return data
+                });
+            } catch (e) {
+                console.log("Error fetching documents: " + e.message);
+            } finally {
+                this.loading.hide()
+            }
+        },
+        async openKopak(id) {
+            this.$router.replace({ name: 'kopak.information', params: { id } });
+        }
     },
     beforeDestroy() {
         // Hapus peta saat komponen dihapus
