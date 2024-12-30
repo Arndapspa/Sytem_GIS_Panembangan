@@ -34,8 +34,11 @@
                                             <template v-if="$store.state.user?.role != 'superadmin'">
                                                 <div class="form-group mb-3">
                                                     <label class="form-label">NIK</label>
-                                                    <Field name="identity_number" class="form-control custom-rounded-medium bg-white" placeholder="Masukkan NIK" v-model="form.identity_number"></Field>
-                                                    <ErrorMessage name="identity_number" :class="'text-danger'" />
+                                                    <Field type="text" v-mask="['################']" name="identity_number" class="form-control custom-rounded-medium mb-2" placeholder="Masukkan NIK" v-model="form.identity_number"/>
+                                                    <div class="d-flex justify-content-between">
+                                                        <div class="text-info" v-if="form.identity_number?.length">Karakter : {{ form.identity_number?.length }}</div>
+                                                        <ErrorMessage name="identity_number" :class="'text-danger'" />
+                                                    </div>
                                                 </div>
                                                 <div class="form-group mb-3">
                                                     <label class="form-label">No. Telepon</label>
@@ -96,6 +99,12 @@ export default {
             return this.$store.state.user
         }
     },
+    mounted() {
+        this.form.name = this.dataUser?.name
+        this.form.identity_number = this.dataUser?.identity_number
+        this.form.phone = this.dataUser?.phone
+        this.form.address = this.dataUser?.address
+    },
     components: {
         simplebar, Field, Form, ErrorMessage
     },
@@ -113,7 +122,7 @@ export default {
         const schema = yup.object({
             name: !route.params.id ? yup.string().required('Masukkan nama') : null,
             phone: !route.params.id ? yup.string().required('Masukkan no. telepon') : null,
-            identity_number: !route.params.id ? yup.string().required('Masukkan password').min(16, 'NIK minimal 16 karakter').max(16, 'NIK maksimal 16 karakter') : null,
+            identity_number: !route.params.id ? yup.string().required('Masukkan nik').min(16, 'NIK minimal 16 karakter').max(16, 'NIK maksimal 16 karakter') : null,
         });
 
         const api = axios.create({

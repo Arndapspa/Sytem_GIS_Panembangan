@@ -142,8 +142,8 @@ export default {
             name: yup.string().required('Masukkan nama'),
             email: yup.string().required('Masukkan email'),
             phone: yup.string().required('Masukkan no. telpon'),
-            password: !route.params.id ? yup.string().required('Masukkan password') : null,
-            password_confirm: !route.params.id ? yup.string().required('Masukkan password') : null,
+            password: !route.params.id ? yup.string().required('Masukkan password').min(8, 'Masukkan password minimal 8 karakter') : null,
+            password_confirm: !route.params.id ? yup.string().required('Masukkan konfirmasi password').min(8, 'Masukkan password minimal 8 karakter') : null,
         });
 
         const api = axios.create({

@@ -186,7 +186,7 @@ export default {
                             this.loading.hide()
                             
                             this.fetchData()
-                            this.$toast.success('Data berhasil dihapus!');
+                            this.$toast.success('Data berhasil dihapus');
                         } catch(error) {
                             this.fetch = false
                             this.$toast.error(error);
@@ -268,7 +268,7 @@ export default {
                             
                             this.isCheckAll = false
                             this.fetchData()
-                            this.$toast.success('Data berhasil dihapus!');
+                            this.$toast.success('Data berhasil dihapus');
                         } catch(error) {
                             this.fetch = false
                             this.$toast.error(error);

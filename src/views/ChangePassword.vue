@@ -114,7 +114,7 @@ export default {
         const schema = yup.object({
             currPassword: !route.params.id ? yup.string().required('Masukkan password lama') : null,
             password: !route.params.id ? yup.string().required('Masukkan password').min(8, 'Password minimal 8 karakter') : null,
-            password_confirm: !route.params.id ? yup.string().required('Masukkan password').min(8, 'Password minimal 8 karakter') : null,
+            password_confirm: !route.params.id ? yup.string().required('Masukkan konfirmasi password').min(8, 'Password minimal 8 karakter') : null,
         });
 
         const api = axios.create({

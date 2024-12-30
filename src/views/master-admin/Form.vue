@@ -28,8 +28,11 @@
                                                     </div>
                                                     <div class="form-group mb-3">
                                                         <label class="form-label">NIK</label>
-                                                        <Field type="number" name="identity_number" class="form-control custom-rounded-medium" placeholder="Masukkan NIK" v-model="form.identity_number"/>
-                                                        <ErrorMessage name="identity_number" :class="'text-danger'" />
+                                                        <Field type="text" v-mask="['################']" name="identity_number" class="form-control custom-rounded-medium mb-2" placeholder="Masukkan NIK" v-model="form.identity_number"/>
+                                                        <div class="d-flex justify-content-between">
+                                                            <div class="text-info" v-if="form.identity_number?.length">Karakter : {{ form.identity_number.length }}</div>
+                                                            <ErrorMessage name="identity_number" :class="'text-danger'" />
+                                                        </div>
                                                     </div>
                                                     <div class="form-group mb-3">
                                                         <label class="form-label">No. Telpon</label>
@@ -150,7 +153,7 @@ export default {
             identity_number: yup.string().required('Masukkan NIK').min(16, "NIK minimal 16 digit").max(16, "NIK maksimal 16 digit"),
             email: yup.string().required('Masukkan email'),
             password: !route.params.id ? yup.string().required('Masukkan password').min(8, 'Masukkan password minimal 8 karakter') : null,
-            password_confirm: !route.params.id ? yup.string().required('Masukkan password').min(8, 'Masukkan password minimal 8 karakter') : null,
+            password_confirm: !route.params.id ? yup.string().required('Masukkan konfirmasi password').min(8, 'Masukkan password minimal 8 karakter') : null,
         });
 
         const api = axios.create({
