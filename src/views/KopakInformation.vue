@@ -87,7 +87,7 @@
                                                 <!-- <button class="btn btn-primary custom-rounded-medium mb-2 ms-2 flex-shrink-0" @click="toggleSearchBar">{{ searchBarVisible ? 'Cari Berdasarkan Pemilik PBB' : 'Cari Berdasarkan Alamat' }}</button> -->
                                             </div>
                                             <div class="custom-rounded-medium mb-3" style="height: 600px; width: 100%; z-index: 1;" id="map" :class="{'d-flex align-items-center justify-content-center bg-light': !this.detailKopak.latitude || !this.detailKopak.longitude}">
-                                                <div v-if="!this.detailKopak.latitude || !this.detailKopak.longitude" class="text-muted text-center" style="line-height: 30px">
+                                                <!-- <div v-if="!this.detailKopak.latitude || !this.detailKopak.longitude" class="text-muted text-center" style="line-height: 30px">
                                                     <img src="@/assets/images/map.png" width="150" class="mb-3" />
                                                     <div class="fs-5 f-bold">
                                                         Kopak Belum Memiliki Titik Koordinat
@@ -96,14 +96,14 @@
                                                         Silahkan atur titik koordinat latitude dan longitude terlebih dahulu untuk menampilkan map.
                                                     </div>
                                                     <router-link :to="`/master-kopak/form/${id}`" class="btn btn-primary custom-rounded-medium">Atur Lokasi Kopak</router-link>
-                                                </div>
+                                                </div> -->
                                             </div>
                                         </div>
                                         <div class="d-block bg-light p-3 custom-rounded-medium" v-if="showDetail">
                                             <div class="d-flex justify-content-between mb-4">
                                                 <div class="d-block">
                                                     <h5 class="mt-2 mb-1">Detail Kepemilikan</h5>
-                                                    <div>{{ detailMap.kopak?.name }}</div>
+                                                    <div>{{ detailMap.kopak?.name }} <span v-if="!detailMap.data?.nop">- {{ detailMap.title }}</span></div>
                                                 </div>
                                                 <a href="javascript:void(0)" @click="closeDetailPBB()"><i class="mdi mdi-close font-size-20 text-muted"></i></a>
                                             </div>
@@ -173,7 +173,7 @@
                                                     </div>
                                                 </router-link>
                                                 <div>
-                                                    <button type="button" class="btn btn-link text-dark fw-bold text-decoration-none" @click="deleteLocation" v-if="detailKopak.supervisorId == $store.state.user?.id || $store.state.user?.role == 'superadmin'"><i class="mdi mdi-trash-can-outline me-2"></i>Hapus Lokasi</button>
+                                                    <button type="button" class="btn btn-link text-dark fw-bold text-decoration-none" @click="confirmDeleteLocation" v-if="detailKopak.supervisorId == $store.state.user?.id || $store.state.user?.role == 'superadmin'"><i class="mdi mdi-trash-can-outline me-2"></i>Hapus Lokasi</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -185,7 +185,7 @@
                                         </template>
                                     </div>
                                     <div class="card-footer text-end" v-if="showDetail && detailMap.data?.nop">
-                                        <button type="button" class="btn btn-link text-dark fw-bold me-2 text-decoration-none" @click="deleteDataPBB" v-if="detailKopak.supervisorId == $store.state.user?.id || $store.state.user?.role == 'superadmin'"><i class="mdi mdi-trash-can-outline me-2"></i>Hapus PBB</button>
+                                        <button type="button" class="btn btn-link text-dark fw-bold me-2 text-decoration-none" @click="deleteDataPBB" v-if="detailMap.kopak?.supervisorId == $store.state.user?.id || $store.state.user?.role == 'superadmin'"><i class="mdi mdi-trash-can-outline me-2"></i>Hapus PBB</button>
                                         <router-link :to="`/master-kopak/form/detail/${id}/${detailMap.id}/${detailMap.data.primary_id}`" class="btn btn-primary custom-rounded-medium">Edit Data PBB</router-link>
                                     </div>
                                     <!-- end card-body -->
@@ -224,7 +224,7 @@ import "leaflet-search";
 
 import { Field, Form, ErrorMessage } from 'vee-validate';
 
-import { find, findIndex, uniqBy, includes, map } from 'lodash';
+import { find, findIndex, uniqBy, includes, map, chunk } from 'lodash';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -304,6 +304,8 @@ export default {
     async mounted() {
         if (this.id) {
             this.detailKopak = await this.fetchDetailKopak(this.id);
+            this.detailKopak.latitude = -7.3831153
+            this.detailKopak.longitude = 109.1252189
             
             if (this.detailKopak) {
                 await this.fetchDataKopak()
@@ -355,20 +357,31 @@ export default {
         async fetchDataPBB() {
             try {
                 this.loading = this.$loading.show()
-                const usersQuery = query(
-                    collection(db, "pbb"),
-                    // where('kopak_id', '==', this.id),
-                    where('location_id', 'in', map(this.allPolygons, 'id'))
-                );
-                const querySnapshot = await getDocs(usersQuery) 
-                const result = querySnapshot.docs
-                .map(doc => ({
-                    primary_id: doc.id,
-                    ...doc.data()
-                }))
+                
+                const ids = map(this.allPolygons, 'id'); // Mengambil ID dari allPolygons
+                const batchSize = 30; // Maksimum jumlah ID per query
+                const chunks = chunk(ids, batchSize); // Membagi ID menjadi batch
+                
+                let results = [];
 
-                this.allPBB = result
-                this.dataAutoComplete = uniqBy(result.map(data => {
+                for (const batch of chunks) {
+                    const usersQuery = query(
+                    collection(db, "pbb"),
+                    where('location_id', 'in', batch)
+                    );
+
+                    const querySnapshot = await getDocs(usersQuery);
+
+                    const batchResults = querySnapshot.docs.map(doc => ({
+                    primary_id: doc.id,
+                    ...doc.data(),
+                    }));
+
+                    results = [...results, ...batchResults]; // Gabungkan hasil dari semua batch
+                }
+
+                this.allPBB = results
+                this.dataAutoComplete = uniqBy(results.map(data => {
                     return {
                         id: data.primary_id,
                         name: data.taxpayer_name
@@ -400,7 +413,7 @@ export default {
                 fadeAnimation: true,
                 markerZoomAnimation: false,
                 crs: L.CRS.EPSG3857, // CRS default
-            }).setView([this.detailKopak.latitude, this.detailKopak.longitude], 19);
+            }).setView([this.detailKopak.latitude, this.detailKopak.longitude], 15);
 
             // L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             //     maxZoom: 19,
@@ -475,6 +488,25 @@ export default {
                         fillOpacity: 0.5, // Tingkat transparansi isian
                         weight: 2
                     });
+                    
+                    this.polygons.push(polygon);
+
+                    polygon.on("click", async(e) => {
+                        let dataEvent = e.target
+                        dataEvent.options.is_owner = true
+                        this.polygonClicked = dataEvent
+                        this.showDetail = true
+                        
+                        this.detailMap = {
+                            id: polygonId,
+                            points: JSON.stringify(latlngs),
+                            title: `Denah ${this.polygons.length + 1}`,
+                            kopak_id: this.id,
+                            kopak: this.detailKopak
+                        }
+                        this.setSelectedPolygon()
+                        this.detailPBB(polygonId)
+                    });
 
                     // Menambahkan polygon ke drawnItems
                     this.drawnItems.addLayer(polygon);
@@ -488,8 +520,6 @@ export default {
                     }
                     
                     await this.saveLocationToDatabase(dataPolygon)
-                    
-                    this.polygons.push(polygon);
                 }
             });
 
@@ -510,7 +540,22 @@ export default {
             });
             
             // Event ketika fitur dihapus
-            this.initialMap.on('draw:deleted', (event) => {
+            this.initialMap.on('draw:deleted', async (event) => {
+                const layers = event.layers; // Semua layer yang diupdate
+                // Iterasi secara berurutan menggunakan for...of
+                for (const layer of layers.getLayers()) {
+                    const detailPolygon = find(this.allPolygons, { id: layer.options.id });
+
+                    if (detailPolygon) {
+                        try {
+                            // Tunggu hingga deleteLocation selesai sebelum melanjutkan ke layer berikutnya
+                            await this.deleteLocation(detailPolygon.primary_id);
+                            console.log(`Lokasi dengan ID ${detailPolygon.primary_id} berhasil dihapus.`);
+                        } catch (error) {
+                            console.error(`Gagal menghapus lokasi dengan ID ${detailPolygon.primary_id}`, error);
+                        }
+                    }
+                }
             });
 
             // Tambahkan kontrol fullscreen
@@ -652,7 +697,7 @@ export default {
                 console.log(message);
             }
         },
-        async deleteLocation() {
+        async confirmDeleteLocation() {
             this.$swal
                 .fire({
                     title: 'Apakah kamu yakin ?',
@@ -667,38 +712,41 @@ export default {
                 })
                 .then(async (result) => {
                     if (result.isConfirmed) {
-                        try {
-                            this.loading = this.$loading.show()
-                            this.fetch = true
-                            if (this.detailMap?.primary_id) {
-                                await deleteDoc(doc(db, "location", this.detailMap.primary_id));
-                            }
-
-                            if (this.polygonClicked) {
-                                const searchIndex = findIndex(this.polygons, (data) => data.options.id == this.polygonClicked.options.id);
-                                
-                                if (searchIndex >= 0) {
-                                    if (this.polygons.length) {
-                                        // Iterasi semua polygon dan hapus dari peta
-                                        this.initialMap.removeLayer(this.polygons[searchIndex]);
-
-                                        // Kosongkan array polygons
-                                        this.polygons.splice(searchIndex, 1);
-                                    }
-                                }
-                            }
-
-                            this.fetch = false
-                            this.loading.hide()
-                            this.showDetail = false
-                            this.$toast.success('Data berhasil dihapus!');
-                        } catch(error) {
-                            this.fetch = false
-                            this.$toast.error(error);
-                            console.log(error);
-                        }
+                        this.deleteLocation(this.detailMap?.primary_id)
                     }
                 });
+        },
+        async deleteLocation(id) {
+            try {
+                this.loading = this.$loading.show()
+                this.fetch = true
+                if (id) {
+                    await deleteDoc(doc(db, "location", id));
+                }
+
+                if (this.polygonClicked) {
+                    const searchIndex = findIndex(this.polygons, (data) => data.options.id == this.polygonClicked.options.id);
+                    
+                    if (searchIndex >= 0) {
+                        if (this.polygons.length) {
+                            // Iterasi semua polygon dan hapus dari peta
+                            this.initialMap.removeLayer(this.polygons[searchIndex]);
+
+                            // Kosongkan array polygons
+                            this.polygons.splice(searchIndex, 1);
+                        }
+                    }
+                }
+
+                this.fetch = false
+                this.loading.hide()
+                this.showDetail = false
+                this.$toast.success('Data berhasil dihapus');
+            } catch(error) {
+                this.fetch = false
+                this.$toast.error(error);
+                console.log(error);
+            }
         },
         async deleteDataPBB() {
             this.$swal
@@ -723,14 +771,20 @@ export default {
                             this.loading.hide()
 
                             // search data
-                            const searchLocation = findIndex(map(this.allPolygons, 'data'), { primary_id: this.detailMap.data.primary_id })
+                            const searchLocation = findIndex(this.allPolygons, { primary_id: this.detailMap.primary_id })
                             const indexPBB = findIndex(this.allPBB, {location_id: this.detailMap.id})
+
                             if (searchLocation >= 0) {
                                 this.allPolygons[searchLocation].data = []
                             } if (indexPBB >= 0) {
                                 this.allPBB.splice(indexPBB, 1)
                             }
-                            this.$toast.success('Data berhasil dihapus!');
+
+                            this.detailMap = {
+                                data: {}
+                            }
+                            this.showDetail = false
+                            this.$toast.success('Data berhasil dihapus');
                         } catch(error) {
                             this.fetch = false
                             console.log(error);
