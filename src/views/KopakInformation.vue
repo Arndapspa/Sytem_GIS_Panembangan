@@ -41,7 +41,7 @@
                                         </div>
                                         <div class="d-flex justify-content-between">
                                             <p class="text-dark">Jumlah WP</p>
-                                            <h6 class="fw-bold text-primary text-end">{{ detailKopak.totalWP || '-' }}</h6>
+                                            <h6 class="fw-bold text-primary text-end">{{ findLocationByKopak }}</h6>
                                         </div>
                                         <div class="d-flex justify-content-between">
                                             <p class="text-dark">Luas Wilayah</p>
@@ -81,11 +81,12 @@
                                         <h5 class="text-center text-white my-2 fw-bold">Maps Kopak</h5>
                                     </div>
                                     <div class="card-body">
+                                        <Autocomplete class="w-100 mb-3" :source="dataAutoComplete" v-model="ownerName" :placeholder="'Cari kepemilikian PBB disini sesuai nama pemilik'" @onSelectedAutocomplete="onSelectedAutocomplete" />
                                         <div style="position: relative">
-                                            <div class="header-map mb-3" v-if="!searchBarVisible">
-                                                <Autocomplete class="w-100" :source="dataAutoComplete" v-model="ownerName" :placeholder="'Cari kepemilikian PBB disini sesuai nama pemilik'" @onSelectedAutocomplete="onSelectedAutocomplete" />
+                                            <!-- <div class="header-map mb-3"> -->
+                                                <!-- <Autocomplete class="w-100" :source="dataAutoComplete" v-model="ownerName" :placeholder="'Cari kepemilikian PBB disini sesuai nama pemilik'" @onSelectedAutocomplete="onSelectedAutocomplete" /> -->
                                                 <!-- <button class="btn btn-primary custom-rounded-medium mb-2 ms-2 flex-shrink-0" @click="toggleSearchBar">{{ searchBarVisible ? 'Cari Berdasarkan Pemilik PBB' : 'Cari Berdasarkan Alamat' }}</button> -->
-                                            </div>
+                                            <!-- </div> -->
                                             <div class="custom-rounded-medium mb-3" style="height: 600px; width: 100%; z-index: 1;" id="map" :class="{'d-flex align-items-center justify-content-center bg-light': !this.detailKopak.latitude || !this.detailKopak.longitude}">
                                                 <!-- <div v-if="!this.detailKopak.latitude || !this.detailKopak.longitude" class="text-muted text-center" style="line-height: 30px">
                                                     <img src="@/assets/images/map.png" width="150" class="mb-3" />
@@ -260,7 +261,7 @@ export default {
                 name: ''
             },
             drawnItems: null,
-            searchBarVisible: false,
+            searchBarVisible: true,
             listKopak: []
         }
     },
@@ -299,6 +300,9 @@ export default {
     computed: {
         findLocation() {
             return find(this.allPolygons, { id: this.detailMap?.data?.location_id })
+        },
+        findLocationByKopak() {
+            return this.allPolygons.filter(data => data.kopak_id == this.id)?.length
         }
     },
     async mounted() {
@@ -583,7 +587,8 @@ export default {
                 },
                 autoType: false,  // Tidak otomatis mengetikkan hasil
                 collapsed: false, // Tampilkan search bar langsung
-                minLength: 2,     // Panjang minimum pencarian
+                minLength: 3,     // Panjang minimum pencarian
+                textPlaceholder: "Cari lokasi di sini...", // Ubah placeholder sesuai keinginan
             })
 
             // Event listener untuk menampilkan marker pada lokasi hasil pencarian
@@ -593,6 +598,7 @@ export default {
                     .bindPopup(e.text)
                     .openPopup();
             });
+            this.searchControl.addTo(this.initialMap);
             // ===================================================================================================================
 
             // Add area marker
