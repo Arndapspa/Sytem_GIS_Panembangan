@@ -22,7 +22,7 @@
                                             <div class="form-group row mb-3">
                                                 <div class="col-md-6">
                                                     <label class="form-label">NOP</label>
-                                                    <Field type="number" name="nop" class="form-control custom-rounded-medium" placeholder="Masukkan nop" v-model="form.nop" />
+                                                    <Field type="text" oninput="this.value = this.value.replace(/[^0-9.]/g, '')" name="nop" class="form-control custom-rounded-medium" placeholder="Masukkan nop" v-model="form.nop" />
                                                     <ErrorMessage name="nop" :class="'text-danger'" />
                                                 </div>
                                                 <div class="col-md-6">
