@@ -27,7 +27,7 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label">No Kopak</label>
-                                                    <Field type="number" name="number" class="form-control custom-rounded-medium" placeholder="Masukkan no kopak" v-model="form.number"/>
+                                                    <Field type="text" oninput="this.value = this.value.replace(/[^0-9.]/g, '')" name="number" class="form-control custom-rounded-medium" placeholder="Masukkan no kopak" v-model="form.number"/>
                                                 </div>
                                             </div>
                                             <div class="form-group row mb-3">
@@ -49,12 +49,12 @@
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
-                                                <div class="col-md-6">
+                                                <!-- <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label class="form-label">Jumlah WP</label>
                                                         <Field type="text" name="totalWP" class="form-control custom-rounded-medium" placeholder="Masukkan jumlah WP" v-model="form.totalWP"/>
                                                     </div>
-                                                </div>
+                                                </div> -->
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label class="form-label">Penanggung Jawab Kopak</label>
@@ -189,9 +189,11 @@ export default {
             const checkExistsCode = await this.checkDuplicateByCode()
             const checkExistsName = await this.checkDuplicateByName()
 
-            if (checkExistsCode > 0) {
+            if (checkExistsCode && checkExistsName) {
+                this.$toast.error('Nama dan No Kopak Sudah digunakan');
+            } else if (checkExistsCode) {
                 this.$toast.error('No Kopak Sudah digunakan');
-            } else if (checkExistsName > 0) {
+            } else if (checkExistsName) {
                 this.$toast.error('Nama Kopak Sudah digunakan');
             } else {
                 this.saveData(this.id)
@@ -251,7 +253,7 @@ export default {
                 );
                 const kopakSnapshot = await getDocs(kopakQuery);                
                 const superVisorExists = kopakSnapshot.docs
-                .map(doc => doc.data().supervisorId)
+                .map(doc => doc.data().supervisorId != this.form.supervisorId ? doc.data().supervisorId : 0)
 
                 this.listAdmin = listUsers.filter((data) => data.role == 'admin' && data.show === true && !superVisorExists.includes(data.id))
                 this.listStaff = listUsers.filter((data) => data.role == 'staff' && data.show === true && !superVisorExists.includes(data.id))
@@ -306,16 +308,17 @@ export default {
         },
         async checkDuplicateByName() {
             this.loading = this.$loading.show()
+            const searchString = this.form.name.toString().toLowerCase()
             const dataQuery = query(
                 collection(db, "kopak"),
-                where("name", '==', this.form.name.toString()),
             );
             const querySnapshot = await getDocs(dataQuery);    
             const data = querySnapshot.docs
             .map(doc => ({
-                id: doc.id
+                id: doc.id,
+                name: doc.data().name
             }))
-            .filter(data => data.id != this.id);
+            .filter(data => data.id != this.id && data.name.toLowerCase() === searchString);
 
             this.loading.hide()
             return data.length

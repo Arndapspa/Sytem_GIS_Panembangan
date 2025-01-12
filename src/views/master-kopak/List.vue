@@ -35,7 +35,7 @@
                                                 <th width="2%"><input type="checkbox" class="form-check-input" v-model="isCheckAll" @change="checkAll()" /></th>
                                                 <th>Kopak</th>
                                                 <th>RW/RT</th>
-                                                <th>Jumlah WP</th>
+                                                <!-- <th>Jumlah WP</th> -->
                                                 <th>Luas Wilayah</th>
                                                 <th>PJ Kopak</th>
                                                 <th></th>
@@ -50,7 +50,7 @@
                                                         <div>{{ item.number }}</div>
                                                     </td>
                                                     <td class="middle-item">{{ item.rw || item.rt ? `${item.rw || '-'} / ${item.rt || '-'}` : '-' }}</td>
-                                                    <td class="middle-item">{{ item.totalWP || '-' }}</td>
+                                                    <!-- <td class="middle-item">{{ item.totalWP || '-' }}</td> -->
                                                     <td class="middle-item">{{ item.buildingArea }} m<sup>2</sup></td>
                                                     <td class="middle-item">{{ searchSupevisor(item.supervisorId)?.name || '-' }}</td>
                                                     <td class="middle-item">
