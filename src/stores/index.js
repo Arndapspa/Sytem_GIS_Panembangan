@@ -10,14 +10,6 @@ export default new Vuex.Store({
         setuser(state, value) {
             state.user = value;
         },
-        setRW(state, value) {
-            state.rw = value
-            localStorage.setItem('rw', JSON.stringify(value))
-        },
-        setRT(state, value) {
-            state.rt = value
-            localStorage.setItem('rt', JSON.stringify(value))
-        }
     },
     actions: {},
     modules: {},

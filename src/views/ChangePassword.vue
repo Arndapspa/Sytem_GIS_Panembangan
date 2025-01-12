@@ -20,14 +20,6 @@
                                             <h6 class="mb-3">Silahkan masukkan password anda yang baru.</h6>
                                             <div class="spacer-medium"></div>
                                             <div class="form-group" :class="{'mb-2': passwordStrength, 'mb-3': !passwordStrength}">
-                                                <label class="form-label">Password Lama</label>
-                                                <div style="position: relative;">
-                                                    <Field :type="togglePasswordVisibility[0] ? 'text' : 'password'" name="currPassword" class="form-control" placeholder="Masukkan password lama" v-model="form.currPassword" />
-                                                    <i class="mdi" v-if="form.currPassword" :class="{'mdi-eye': togglePasswordVisibility[0], 'mdi-eye-off': !togglePasswordVisibility[0]}" style="position: absolute; top: 10px; right: 10px; cursor: pointer" @click="togglePasswordVisibility[0] = !togglePasswordVisibility[0]"></i>
-                                                </div>
-                                                <ErrorMessage name="currPassword" :class="'text-danger'" />
-                                            </div>
-                                            <div class="form-group" :class="{'mb-2': passwordStrength, 'mb-3': !passwordStrength}">
                                                 <label class="form-label">Password Baru</label>
                                                 <div style="position: relative;">
                                                     <Field :type="togglePasswordVisibility[1] ? 'text' : 'password'" name="password" class="form-control" placeholder="Masukkan password" v-model="form.password" />
@@ -83,9 +75,8 @@ import 'simplebar-core/dist/simplebar.css';
 import { Field, Form, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 
-import { db } from '@/utils/firebase';
-import { getAuth, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
-import { signOut } from "firebase/auth";
+import { db, auth } from '@/utils/firebase';
+import { getAuth, signOut } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 
 import { useRoute } from 'vue-router';
@@ -98,7 +89,6 @@ export default {
         return {
             togglePasswordVisibility: [false, false, false],
             form :{
-                currPassword: '',
                 password: '',
                 confirmPassword: '',
             },
@@ -112,7 +102,6 @@ export default {
         const route = useRoute();
         
         const schema = yup.object({
-            currPassword: !route.params.id ? yup.string().required('Masukkan password lama') : null,
             password: !route.params.id ? yup.string().required('Masukkan password').min(8, 'Password minimal 8 karakter') : null,
             password_confirm: !route.params.id ? yup.string().required('Masukkan konfirmasi password').min(8, 'Password minimal 8 karakter') : null,
         });
@@ -162,47 +151,58 @@ export default {
                     if (result.isConfirmed) {
                         if (this.form.password != this.form.confirmPassword) {
                             this.$toast.error('Konfirmasi password tidak sesuai!');
-                        } else if (this.form.currPassword == this.form.password) {
-                            this.$toast.error('Password yang digunakan sama dengan sebelumnya!');
                         } else {
                             const auth = getAuth()
                             const user = auth.currentUser;
-
-                            // Buat objek kredensial
-                            const credential = EmailAuthProvider.credential(user.email, this.form.currPassword);
+                            
                             if (user) {
-                                this.loading = this.$loading.show()
-
-                                reauthenticateWithCredential(user, credential)
-                                .then(() => {
-                                    updatePassword(user, this.form.password)
-                                    .then(async () => {
-                                        this.$toast.success('Password berhasil diubah');
-                                        
-                                        await signOut(auth);
-                                        localStorage.removeItem('token')
-                                        this.loading.hide()
-                                        await this.saveUser(user.uid)
-                                        setTimeout(() => {
-                                            this.$router.push("/signin");
-                                        }, 100);
-                                    })
-                                    .catch((error) => {
-                                        this.$toast.error(`${error.message}`);
-                                    });
-                                })
-                                .then(() => {
-                                    console.log("Password berhasil diubah!");
-                                })
-                                .catch((error) => {
-                                    console.error("Error:", error.message);
-                                });
+                                const newToken = await user.getIdToken(true)
+                                localStorage.setItem('token', newToken)
+                                
+                                await this.changePassword(this.form.password)
                             } else {
-                                this.$toast.error('Anda harus masuk untuk mengubah password!.');
+                                this.$toast.error('User not authenticated!');
                             }
                         }
                     }
                 });
+        },
+        async changePassword(password) {
+            this.loading = this.$loading.show()
+            if (this.form.password == this.form.confirmPassword) {
+                this.api
+                    .post(`${import.meta.env.VITE_APP_API_ENDPOINT}/api/update-password`,
+                        {
+                            password: password
+                        },
+                        {
+                            headers: {
+                                Authorization: `Bearer ${localStorage.getItem('token')}`, // Kirim token untuk verifikasi
+                            },
+                        }
+                    )
+                    .then((response) => {
+                        this.loading.hide()
+                        if (response.statusText.toLowerCase() === 'ok' || response.status === 200) {
+                            this.$toast.success(response.data.message);
+
+                            setTimeout(async () => {
+                                await signOut(auth);
+                                localStorage.removeItem('token')
+                                this.$router.push("/signin");
+                            }, 500);
+                        } else {
+                            this.$toast.error(response.data.message);
+                        }
+                    })
+                    .catch((error) => {
+                        this.loading.hide()
+                        this.$toast.error(error.response.data.error);
+                    });
+            } else {
+                this.loading.hide()
+                this.$toast.error('Konfirmasi password tidak sesuai!');
+            }
         },
         async saveUser(uid) {
             try {

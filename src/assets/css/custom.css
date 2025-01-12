@@ -305,3 +305,24 @@
     background-color: #ffffff;
     z-index: 9999999;
 }
+
+.list-autocomplete {
+    position: absolute;
+    right: 0;
+    left: 0;
+    z-index: 9;
+    margin: 0
+}
+
+.leaflet-top, .leaflet-control-search {
+    width: 99% !important;
+}
+
+.leaflet-control-search input[type="text"] {
+    width: 95% !important;
+    padding: 10px !important;
+}
+
+.leaflet-control-search .search-cancel {
+    display: none !important; /* Sembunyikan ikon clear */
+}
