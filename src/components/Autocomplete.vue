@@ -5,7 +5,7 @@
             <input type="text" class="form-control custom-rounded mb-2" style="padding-left: 2.5rem !important" :placeholder="placeholder" :value="modelValue" @input="handleInput"/>
             <i class="mdi mdi-close m-0" style="position: absolute; bottom: 3px; right: 10px; font-size: 1.5rem; cursor: pointer;" @click="clearValue" v-if="modelValue"></i>
         </div>
-        <div class="shadow-lg custom-rounded-medium border bg-white p-0" v-if="isOpen && modelValue">
+        <div class="shadow-lg custom-rounded-medium border bg-white p-0 list-autocomplete" v-if="isOpen && modelValue">
             <ul class="m-0 list-unstyled px-0" v-if="searchResults.length">
                 <li
                     v-for="result in searchResults"
