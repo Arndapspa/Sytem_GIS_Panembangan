@@ -43,7 +43,7 @@
     <div class="topnav">
             <div class="container-fluid">
                 <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
-                    <div class="collapse navbar-collapse" :class="{'show': this.showMenu}">
+                    <div class="collapse navbar-collapse" :class="{'show': showMenu}">
                         <ul class="navbar-nav">
                             <template v-for="item in listMenu">
                                 <li class="nav-item" v-if="item.role.indexOf($store.state.user?.role) != -1 || item.role == 'all'">

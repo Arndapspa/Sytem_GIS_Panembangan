@@ -308,8 +308,8 @@
 
 .list-autocomplete {
     position: absolute;
-    right: 0;
-    left: 0;
+    right: 20px;
+    left: 20px;
     z-index: 9;
     margin: 0
 }
