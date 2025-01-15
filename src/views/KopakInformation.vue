@@ -81,24 +81,11 @@
                                         <h5 class="text-center text-white my-2 fw-bold">Maps Kopak</h5>
                                     </div>
                                     <div class="card-body">
-                                        <Autocomplete class="w-100 mb-3" :source="dataAutoComplete" v-model="ownerName" :placeholder="'Cari kepemilikian PBB disini sesuai nama pemilik'" @onSelectedAutocomplete="onSelectedAutocomplete" />
                                         <div style="position: relative">
-                                            <!-- <div class="header-map mb-3"> -->
-                                                <!-- <Autocomplete class="w-100" :source="dataAutoComplete" v-model="ownerName" :placeholder="'Cari kepemilikian PBB disini sesuai nama pemilik'" @onSelectedAutocomplete="onSelectedAutocomplete" /> -->
-                                                <!-- <button class="btn btn-primary custom-rounded-medium mb-2 ms-2 flex-shrink-0" @click="toggleSearchBar">{{ searchBarVisible ? 'Cari Berdasarkan Pemilik PBB' : 'Cari Berdasarkan Alamat' }}</button> -->
-                                            <!-- </div> -->
-                                            <div class="custom-rounded-medium mb-3" style="height: 600px; width: 100%; z-index: 1;" id="map" :class="{'d-flex align-items-center justify-content-center bg-light': !this.detailKopak.latitude || !this.detailKopak.longitude}">
-                                                <!-- <div v-if="!this.detailKopak.latitude || !this.detailKopak.longitude" class="text-muted text-center" style="line-height: 30px">
-                                                    <img src="@/assets/images/map.png" width="150" class="mb-3" />
-                                                    <div class="fs-5 f-bold">
-                                                        Kopak Belum Memiliki Titik Koordinat
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        Silahkan atur titik koordinat latitude dan longitude terlebih dahulu untuk menampilkan map.
-                                                    </div>
-                                                    <router-link :to="`/master-kopak/form/${id}`" class="btn btn-primary custom-rounded-medium">Atur Lokasi Kopak</router-link>
-                                                </div> -->
+                                            <div class="header-map mb-3">
+                                                <Autocomplete class="w-100" :source="dataAutoComplete" v-model="ownerName" :placeholder="'Cari kepemilikian PBB disini sesuai nama pemilik'" @onSelectedAutocomplete="onSelectedAutocomplete" />
                                             </div>
+                                            <div class="custom-rounded-medium mb-3" style="height: 600px; width: 100%; z-index: 1;" id="map" :class="{'d-flex align-items-center justify-content-center bg-light': !this.detailKopak.latitude || !this.detailKopak.longitude}"></div>
                                         </div>
                                         <div class="d-block bg-light p-3 custom-rounded-medium" v-if="showDetail">
                                             <div class="d-flex justify-content-between mb-4">
@@ -187,7 +174,7 @@
                                     </div>
                                     <div class="card-footer text-end" v-if="showDetail && detailMap.data?.nop">
                                         <button type="button" class="btn btn-link text-dark fw-bold me-2 text-decoration-none" @click="deleteDataPBB" v-if="detailMap.kopak?.supervisorId == $store.state.user?.id || $store.state.user?.role == 'superadmin'"><i class="mdi mdi-trash-can-outline me-2"></i>Hapus PBB</button>
-                                        <router-link :to="`/master-kopak/form/detail/${id}/${detailMap.id}/${detailMap.data.primary_id}`" class="btn btn-primary custom-rounded-medium">Edit Data PBB</router-link>
+                                        <router-link :to="`/master-kopak/form/detail/${id}/${detailMap.id}/${detailMap.data.primary_id}`" class="btn btn-primary custom-rounded-medium" v-if="$store.state.user?.role != 'staff'">Edit Data PBB</router-link>
                                     </div>
                                     <!-- end card-body -->
                                 </div>
@@ -216,12 +203,10 @@ import 'simplebar-core/dist/simplebar.css';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
-import "leaflet-search/dist/leaflet-search.min.css";
 
 import L from "leaflet";
 import 'leaflet-draw';
 import "leaflet-fullscreen";
-import "leaflet-search";
 
 import { Field, Form, ErrorMessage } from 'vee-validate';
 
@@ -261,7 +246,6 @@ export default {
                 name: ''
             },
             drawnItems: null,
-            searchBarVisible: true,
             listKopak: []
         }
     },
@@ -468,8 +452,11 @@ export default {
                     circlemarker: false,
                 },
             });
-            this.initialMap.addControl(drawControl);
-            drawControl.setPosition('bottomleft'); // Mengatur posisi kontrol
+
+            if (this.$store.state.user?.role != 'staff') {
+                this.initialMap.addControl(drawControl);
+                drawControl.setPosition('bottomleft'); // Mengatur posisi kontrol
+            }
 
             // Event ketika fitur digambar
             this.initialMap.on(L.Draw.Event.CREATED, async (event) => {
@@ -575,32 +562,6 @@ export default {
             });
 
             // ===================================================================================================================
-            // =================================================== FITUR SEARCH MAP ================================================
-            const map = this.initialMap
-            this.searchControl = new L.Control.Search({
-                url: "https://nominatim.openstreetmap.org/search?format=json&q={s}", // Endpoint Nominatim
-                jsonpParam: "json_callback", // Mendukung JSONP
-                propertyName: "display_name", // Properti untuk menampilkan hasil pencarian
-                propertyLoc: ["lat", "lon"],  // Properti untuk lokasi koordinat
-                moveToLocation(latlng, title, map) {
-                    map.setView(latlng, 17); // Zoom ke hasil pencarian
-                },
-                autoType: false,  // Tidak otomatis mengetikkan hasil
-                collapsed: false, // Tampilkan search bar langsung
-                minLength: 3,     // Panjang minimum pencarian
-                textPlaceholder: "Cari lokasi di sini...", // Ubah placeholder sesuai keinginan
-            })
-
-            // Event listener untuk menampilkan marker pada lokasi hasil pencarian
-            this.searchControl.on("search:locationfound", (e) => {
-                L.marker(e.latlng)
-                    .addTo(this.initialMap)
-                    .bindPopup(e.text)
-                    .openPopup();
-            });
-            this.searchControl.addTo(this.initialMap);
-            // ===================================================================================================================
-
             // Add area marker
             if (this.allPolygons) {
                 this.allPolygons.forEach(element => {
@@ -829,16 +790,6 @@ export default {
             this.showDetail = !this.showDetail
             this.resetSelectedPolygon()
         },
-        toggleSearchBar() {
-            if (this.searchBarVisible) {
-                // Hide search bar
-                this.initialMap.removeControl(this.searchControl);
-            } else {
-                // Show search bar
-                this.searchControl.addTo(this.initialMap);
-            }
-            this.searchBarVisible = !this.searchBarVisible; // Toggle status
-        },
         async fetchDataKopak() {
             try {
                 this.loading = this.$loading.show()
@@ -856,13 +807,6 @@ export default {
                     id: doc.id,
                     ...doc.data(),
                 }))
-                .filter(data => {
-                    if (role == 'staff')
-                        if (data.staff.indexOf(userId) != -1)
-                            return data
-                    if (['superadmin', 'admin'].indexOf(role) != -1)
-                        return data
-                });
             } catch (e) {
                 console.log("Error fetching documents: " + e.message);
             } finally {
