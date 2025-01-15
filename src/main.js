@@ -1,7 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 
-// import store from './store'
 import stores from './stores';
 
 // load utils
@@ -20,14 +19,6 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 import Toast, {useToast} from "vue-toastification";
 import "vue-toastification/dist/index.css";
 
-// import datepicker
-import VueFlatpickr from 'vue-flatpickr-component'
-import 'flatpickr/dist/flatpickr.css';
-
-// moment library
-import moment from 'moment'
-import 'moment/dist/locale/id'
-
 // load assets
 import './assets/css/bootstrap.min.css'
 import './assets/css/icons.min.css'
@@ -38,7 +29,6 @@ import 'bootstrap'
 
 // import components for global
 import Pagination from './components/Pagination.vue'
-// import EmptyState from './components/EmptyState.vue'
 
 import VueTheMask from 'vue-the-mask'
 
@@ -67,8 +57,6 @@ app.use(Toast, {
     position: "top-right",
 });
 
-app.config.productionTip = false
-
 app.config.globalProperties.$loading = useLoading({
     color: '#fff',
     zIndex: 99999999,
@@ -76,11 +64,8 @@ app.config.globalProperties.$loading = useLoading({
 });
 
 app.component(Pagination.name, Pagination)
-// app.component(EmptyState.name, EmptyState)
-app.component('flat-pickr', VueFlatpickr);
 
 // global variables
-app.config.globalProperties.$moment = moment;
 app.config.globalProperties.$toast = useToast()
 
 // global functions
@@ -90,12 +75,6 @@ app.config.globalProperties.$toCurrency =  function (value) {
     }
 
     return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')
-}
-
-app.config.globalProperties.$changeFormatDate = function (date, format='DD MMMM YYYY HH:mm') {
-    if (!date) return '-'
-    moment.locale('id')
-    return moment(date).format(format)
 }
 
 app.mount('#app')

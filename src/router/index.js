@@ -1,5 +1,4 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import stores from '../stores'
 
 import Home from '../views/Home.vue'
 import Signin from '../views/authentication/Signin.vue'
@@ -15,8 +14,6 @@ import StaffForm from '../views/master-staff/Form.vue'
 
 import Admin from '../views/master-admin/List.vue'
 import AdminForm from '../views/master-admin/Form.vue'
-
-import Maps from '../views/Maps.vue'
 
 import NotFound from '../views/404.vue'
 
@@ -133,16 +130,6 @@ const routes = [
         component: AdminForm,
         meta: {
             title: `${nameApplication} | Form Master Admin`,
-            footer: true,
-            navbar: true,
-        }
-    },
-    {
-        path: '/maps',
-        name: 'maps',
-        component: Maps,
-        meta: {
-            title: `${nameApplication} | Master Admin`,
             footer: true,
             navbar: true,
         }

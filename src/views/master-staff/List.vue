@@ -88,7 +88,7 @@ import {filter, map} from 'lodash'
 import axios from 'axios';
 
 import { db } from '@/utils/firebase';
-import { collection, getDocs, deleteDoc, doc, query, where, startAt, endAt, orderBy } from "firebase/firestore"; 
+import { collection, getDocs, deleteDoc, doc, query, where, orderBy } from "firebase/firestore"; 
 
 export default {
     name: 'MasterStaff',

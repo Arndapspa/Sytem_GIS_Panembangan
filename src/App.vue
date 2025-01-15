@@ -47,11 +47,6 @@ export default {
             }
             this.loading.hide()
         }
-
-        // Dapatkan token untuk digunakan (misalnya kirim ke backend)
-        // user.getIdToken().then((token) => {
-        //   localStorage.setItem('token', token)
-        // });
       } else {
         // User is signed out
         this.user = null;
