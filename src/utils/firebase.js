@@ -14,7 +14,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+const db = getFirestore(app); // object yang berisikan semua opasi database
+const auth = getAuth(app); // object untuk keperluan authentication
 
 export { db, auth, updatePassword };

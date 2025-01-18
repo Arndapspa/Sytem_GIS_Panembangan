@@ -6,6 +6,7 @@
             <i class="mdi mdi-close m-0" style="position: absolute; bottom: 3px; right: 10px; font-size: 1.5rem; cursor: pointer;" @click="clearValue" v-if="modelValue"></i>
         </div>
         <div class="shadow-lg custom-rounded-medium border bg-white p-0 list-autocomplete" v-if="isOpen && modelValue">
+            <!-- Menampilkan data dan pencarian nama -->
             <ul class="m-0 list-unstyled px-0" v-if="searchResults.length">
                 <li
                     v-for="result in searchResults"
@@ -23,7 +24,7 @@
 </template>
 <script setup>
 import { computed, ref } from 'vue'
-
+// variable yang dapat di ubah isinya dari parent yang menggunakan component ini
     const props = defineProps({
         source: {
             type: Array,
@@ -41,11 +42,13 @@ import { computed, ref } from 'vue'
     const isOpen = ref(false)
 
     const searchResults = computed(() => {
+        // proses pencarian data berdasarkan value dari input text oleh user
         if (search.value === '') {
             return []
         }
 
         return props.source.filter(item => {
+            // contoh bentuk data : [{id: 1, name: test}, {id: 2, name: test 2}]
             if (item.name.toLowerCase().includes(search.value.toLowerCase())) {
                 return item
             }
@@ -53,6 +56,7 @@ import { computed, ref } from 'vue'
     })
 
     const onSelected = item => {
+        // replace input form pencarian dengan data yang dipilih
         isOpen.value = false
         search.value = item.name
         emit('update:modelValue', search.value)
@@ -60,12 +64,14 @@ import { computed, ref } from 'vue'
     }
 
     const handleInput = event => {
+        // mengubah value variable dengan yang diketik pada form 
         isOpen.value = true
         search.value = event.target.value
         emit('update:modelValue', search.value)
     }
 
     const clearValue = event => {
+        // menghapus semua value yang ada di form
         isOpen.value = false
         search.value = ''
         emit('update:modelValue', '')

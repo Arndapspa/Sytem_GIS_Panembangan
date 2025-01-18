@@ -171,7 +171,6 @@ router.beforeEach((to, from, next) => {
     const localData = localStorage.getItem('token')
     const tmpRole = localStorage.getItem('role') || ''
 
-    const authRequired  = ['signin', 'signup'].includes(to.name);
     const role = to.meta.role || ''
 
     let isAllow = true
@@ -182,28 +181,11 @@ router.beforeEach((to, from, next) => {
     }
 
     if (isAllow) {
-        // if (localData && !authRequired) {
-        //     ApiCore.get(`${apiEnpoint.ACCOUNT}/info`)
-        //             .then((response) => {
-        //                 if ('status' in response && !response.status) {
-        //                     localStorage.removeItem('token')
-        //                     localStorage.removeItem('rtId')
-        //                     localStorage.removeItem('rwId')
-        //                     next({name: 'home'})
-        //                 } else {
-        //                     stores.commit('setuser', response)
-        //                     next()
-        //                 }
-        //             })
-        //             .catch(() => {})
-        // } else {
-            if (to.path == '/' && !localData) {
-                next({name: 'signin'})
-            } else {
-                next()
-            }
-        // }
-        // next()
+        if (to.path == '/' && !localData) {
+            next({name: 'signin'})
+        } else {
+            next()
+        }
     } else {
         next({name: 'notfound'})
     }

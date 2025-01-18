@@ -80,12 +80,9 @@
     </main>
 </template>
 <script>
-import simplebar from 'simplebar-vue';
-import 'simplebar-core/dist/simplebar.css';
+import {filter, map} from 'lodash' // library untuk manipulasi array
 
-import {filter, map} from 'lodash'
-
-import axios from 'axios';
+import axios from 'axios'; // library http request : agar bisa request ke server
 
 import { db } from '@/utils/firebase';
 import { collection, getDocs, deleteDoc, doc, query, where, orderBy } from "firebase/firestore"; 
@@ -107,9 +104,6 @@ export default {
             },
             loading: null
         }
-    },
-    components: {
-        simplebar,
     },
     setup(){
         const api = axios.create({
@@ -140,27 +134,27 @@ export default {
             this.pagination.page = 1
             try {
                 this.loading = this.$loading.show()
-                const usersQuery = query(
-                    collection(db, "users"),
-                    where("role", "==", 'admin'),
-                    orderBy("createdAt", 'asc'),
+                const usersQuery = query( // ingin menampilkan data apa ?'
+                    collection(db, "users"), // dari collection mana ?
+                    where("role", "==", 'admin'), // kondisi dimana role harus admin
+                    orderBy("createdAt", 'asc'), // di urutan berdasarkan tanggal dibuat
                 );
-                const querySnapshot = await getDocs(usersQuery);                
-                this.list = querySnapshot.docs
-                .map(doc => ({
+                const querySnapshot = await getDocs(usersQuery); // getDocs berfugsi untuk mengeksekusi query diatas dan menghasilkan object document
+                // mengambil data pada document yang berhasil di eksekusi
+                this.list = querySnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 }))
 
-                this.showData(true)
+                this.showData(true) // menampilkan data admin
                 this.pagination.total = this.list.length
                 this.loading.hide()
             } catch (e) {
                 this.error = "Error fetching documents: " + e.message;
-            } finally {
             }
         },
         async deletedData(data) {
+            // menghapus data admin
             this.$swal
                 .fire({
                     title: 'Apakah kamu yakin ?',
@@ -178,12 +172,13 @@ export default {
                         try {
                             this.loading = this.$loading.show()
                             this.fetch = true
+                            // hapus data admin di database user
                             await deleteDoc(doc(db, "users", data.id));
-                            await this.deleteAccount(data.id)
+                            await this.deleteAccount(data.id) // hapus data authentication berdasarkan user admin yang dihapus
                             this.fetch = false
                             this.loading.hide()
                             
-                            this.fetchData()
+                            this.fetchData() // mengambil data dari firestore database
                             this.$toast.success('Data berhasil dihapus');
                         } catch(error) {
                             this.fetch = false
@@ -193,6 +188,7 @@ export default {
                 });
         },
         async deleteAccount(uid) {
+            // hit API backend untuk hapus authentication
             return new Promise((resolve, reject) => {
                 this.api
                     .delete(`${import.meta.env.VITE_APP_API_ENDPOINT}/api/user/${uid}`)
@@ -209,23 +205,28 @@ export default {
             });
         },
         checkAll() {
+            // checklist semua data admin
             this.list.forEach(element => {
                 element.checked = this.isCheckAll
             });
         },
         showData(reset=false) {
+            // menampilkan data admin dan proses pagination
             if (reset) {
                 this.pagination.page = 1
             }
             let result = []
+            // proses pencarian data admin berdasarkan kata kunci
             if (this.keywords) {
                 result = this.list.filter(data => {
-                    return data.name.toUpperCase().includes(this.keywords.toUpperCase()) || data.email.toUpperCase().includes(this.keywords.toUpperCase());
+                    return data.name.toLowerCase().includes(this.keywords.toLowerCase()) || data.email.toLowerCase().includes(this.keywords.toLowerCase());
                 });
             } else {
                 result = this.list
             }
 
+            // proses pagination berdasarkan array
+            // 1-1*5 = 0
             const start = (this.pagination.page - 1) * this.pagination.limit;
             const end = start + this.pagination.limit;
 
@@ -233,9 +234,11 @@ export default {
             this.pagination.next = this.list.length - end > 0
             this.pagination.total = result.length
 
+            // menampilkan data dari 0 sampe 5 dan seterusnya
             this.listPaged = result.slice(start, end)
         },
         async deletedDataBatch() {
+            // hapus data admin yang terpilih
             const listId = map(this.selectedData, 'id')
 
             this.$swal
@@ -257,15 +260,15 @@ export default {
                             this.fetch = true
 
                             listId.forEach(async (element) => {
-                                await deleteDoc(doc(db, "users", element))
-                                await this.deleteAccount(element)
+                                await deleteDoc(doc(db, "users", element)) // menghapus data admin di firebase yang terpilih
+                                await this.deleteAccount(element) // hapus data authentication
                             });
 
                             this.fetch = false
                             this.loading.hide()
                             
-                            this.isCheckAll = false
-                            this.fetchData()
+                            this.isCheckAll = false // menghilangkan ceklist pada chekcbox
+                            this.fetchData() // mengambil data dari firebase
                             this.$toast.success('Data berhasil dihapus');
                         } catch(error) {
                             this.fetch = false

@@ -12,18 +12,9 @@
                                         <router-link to="/" class="btn button-circle bg-white border me-3 d-flex align-items-center justify-content-center"><i class="mdi mdi-arrow-left fs-4"></i></router-link>
                                         <h4 class="mb-sm-0">Informasi Kopak</h4>
                                     </div>
-
-                                    <!-- <div class="page-title-right">
-                                        <ol class="breadcrumb m-0">
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Horizontal</a></li>
-                                            <li class="breadcrumb-item active">Default</li>
-                                        </ol>
-                                    </div> -->
-
                                 </div>
                             </div>
                         </div>
-                        <!-- statistic resident by card -->
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="card custom-rounded-medium">
@@ -98,10 +89,6 @@
                                             <div class="row" v-if="detailMap.data?.nop">
                                                 <div class="col-md-6">
                                                     <div class="form-group mb-3">
-                                                        <div>Lokasi</div>
-                                                        <div class="h6">{{ findLocation?.title }}</div>
-                                                    </div>
-                                                    <div class="form-group mb-3">
                                                         <div>NOP</div>
                                                         <div class="h6">{{ detailMap.data.nop }}</div>
                                                     </div>
@@ -123,10 +110,6 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <div class="form-group mb-3">
-                                                        <div>Kopak</div>
-                                                        <div class="h6">{{ detailKopak?.name }}</div>
-                                                    </div>
                                                     <div class="form-group mb-3">
                                                         <div>Tahun Pajak</div>
                                                         <div class="h6">{{ detailMap.data.tax_year }}</div>
@@ -197,9 +180,6 @@
 }
 </style>
 <script>
-import simplebar from 'simplebar-vue';
-import 'simplebar-core/dist/simplebar.css';
-
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
@@ -207,8 +187,6 @@ import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
 import L from "leaflet";
 import 'leaflet-draw';
 import "leaflet-fullscreen";
-
-import { Field, Form, ErrorMessage } from 'vee-validate';
 
 import { find, findIndex, uniqBy, includes, map, chunk } from 'lodash';
 
@@ -269,7 +247,7 @@ export default {
                 });
             }
         },
-        '$route.params.id'(newId) {
+        '$route.params.id'(newId) { // id di ambil dari nama variable pada router (/router/index.js : line 88)
             this.id = newId;
 
             this.$router.replace({ path: '/' })
@@ -279,17 +257,14 @@ export default {
         },
     },
     components: {
-        simplebar, Field, Form, ErrorMessage, Autocomplete
+        Autocomplete
     },
     computed: {
-        findLocation() {
-            return find(this.allPolygons, { id: this.detailMap?.data?.location_id })
-        },
-        findLocationByKopak() {
+        findLocationByKopak() { // proses pencarian denah berdasarkan id kopak yang sedang dibuka dan dihitung 
             return this.allPolygons.filter(data => data.kopak_id == this.id)?.length
         }
     },
-    async mounted() {
+    async mounted() { // ketika html kosongan ditampilkan, maka ada proses pengambilan data ke firestore
         if (this.id) {
             this.detailKopak = await this.fetchDetailKopak(this.id);
             this.detailKopak.latitude = -7.3831153
@@ -306,7 +281,7 @@ export default {
         }
     },
     methods: {
-        async fetchDetailKopak(id) {
+        async fetchDetailKopak(id) { // mengambil data kopak berdasarkan id (dari paramater router) ke firestore
             const dataDoc = await getDoc(doc(db, "kopak", id));
             
             if (dataDoc.exists()) {
@@ -317,16 +292,15 @@ export default {
                 return {}
             }
         },
-        async fetchDataLocation() {
+        async fetchDataLocation() { // mengambil data denah dari firestore
             try {
                 this.loading = this.$loading.show()
                 const usersQuery = query(
                     collection(db, "location"),
-                    // where('kopak_id', '==', this.id)
                 );
                 const querySnapshot = await getDocs(usersQuery);                
                 const dataList = querySnapshot.docs
-                .map(doc => ({
+                .map(doc => ({ // manipulasi data denah dari firestore (mengambil data yang digunakan saja dan menambahkan attribute is_owner yang tidak ada di firestore)
                     primary_id: doc.id,
                     id: doc.data().id,
                     kopak_id: doc.data().kopak_id,
@@ -335,6 +309,7 @@ export default {
                     title: doc.data().title,
                 }))
                 
+                // memasukan data ke variable yang ada di section data()
                 this.allPolygons = dataList
             } catch (e) {
                 console.log("Error fetching documents: " + e.message);
@@ -342,20 +317,20 @@ export default {
                 this.loading.hide()
             }
         },
-        async fetchDataPBB() {
+        async fetchDataPBB() { // mengambil data kepemilikan pbb
             try {
                 this.loading = this.$loading.show()
                 
                 const ids = map(this.allPolygons, 'id'); // Mengambil ID dari allPolygons
-                const batchSize = 30; // Maksimum jumlah ID per query
-                const chunks = chunk(ids, batchSize); // Membagi ID menjadi batch
+                const batchSize = 30; // Maksimum jumlah ID per query dari firestore
+                const chunks = chunk(ids, batchSize); // Membagi pengambilan data pbb menjadi per 30 data
                 
                 let results = [];
 
                 for (const batch of chunks) {
                     const usersQuery = query(
-                    collection(db, "pbb"),
-                    where('location_id', 'in', batch)
+                        collection(db, "pbb"),
+                        where('location_id', 'in', batch)
                     );
 
                     const querySnapshot = await getDocs(usersQuery);
@@ -369,6 +344,7 @@ export default {
                 }
 
                 this.allPBB = results
+                // uniqBy : untuk melakukan filter data pbb menjadi unik berdasarkan nama
                 this.dataAutoComplete = uniqBy(results.map(data => {
                     return {
                         id: data.primary_id,
@@ -383,9 +359,11 @@ export default {
         },
         async detailPBB(locationId) {
             try {
+                // pencarian data pbb pada variable allPBB (semua data pbb) berdasarkan id denah
+                // findIndex: pencarian index array berdasarkan attribute location_id
                 const indexPBB = findIndex(this.allPBB, {location_id: locationId})
                 
-                if (indexPBB > -1) {
+                if (indexPBB > -1) { // jika ditemukan data pbb nya
                     this.detailMap.data = this.allPBB[indexPBB]
                 } else {
                     this.detailMap.data = []
@@ -395,6 +373,7 @@ export default {
             }
         },
         async initMap() {
+            // inisialisasi map OSM
             this.initialMap = L.map("map", {
                 zoomControl: false,
                 zoomAnimation: true,
@@ -403,11 +382,6 @@ export default {
                 crs: L.CRS.EPSG3857, // CRS default
             }).setView([this.detailKopak.latitude, this.detailKopak.longitude], 15);
 
-            // L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            //     maxZoom: 19,
-            //     attribution: "&copy; <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a>",
-            // }).addTo(this.initialMap);
-
             // Google Maps Satellite Tile Layer
             const googleSatellite = L.tileLayer('https://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
                 subdomains: ['0', '1', '2', '3'], // Subdomain Google
@@ -415,17 +389,8 @@ export default {
                 attribution: '&copy; <a href="https://www.google.com/maps">Google Maps</a>',
             });
 
-            // Tambahkan ke Peta
+            // Tambahkan layer ke Peta
             googleSatellite.addTo(this.initialMap);
-
-            // L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-            //     attribution: '&copy; <a href="https://www.openstreetmap.org/">2022</a>',
-            //     maxZoom: 23,
-            //     id: 'mapbox/satellite-streets-v11',
-            //     tileSize: 512,
-            //     zoomOffset: -1,
-            //     accessToken: 'pk.eyJ1IjoiYW5vbnk3OTExIiwiYSI6ImNsYTZiYWwybzE2d2YzcnFxaWdvNGdsbHMifQ.LtkD7CYPKYyAmyXG6tqNbA'
-            // }).addTo(this.initialMap);
 
             // ==================================== FITUR DRAW MAP ===========================================
             // Inisialisasi FeatureGroup untuk menyimpan gambar
@@ -453,12 +418,13 @@ export default {
                 },
             });
 
+            // jika role user yang login bukan petugas, maka tambahkan tools ke map
             if (this.$store.state.user?.role != 'staff') {
                 this.initialMap.addControl(drawControl);
                 drawControl.setPosition('bottomleft'); // Mengatur posisi kontrol
             }
 
-            // Event ketika fitur digambar
+            // Event ketika fitur telah digambar pada map
             this.initialMap.on(L.Draw.Event.CREATED, async (event) => {
                 const polygonId = uuidv4()
                 const layer = event.layer;
@@ -484,9 +450,9 @@ export default {
 
                     polygon.on("click", async(e) => {
                         let dataEvent = e.target
-                        dataEvent.options.is_owner = true
-                        this.polygonClicked = dataEvent
-                        this.showDetail = true
+                        dataEvent.options.is_owner = true // menandai denah yang yang aktif
+                        this.polygonClicked = dataEvent // menampung denah terakhir di klik
+                        this.showDetail = true // menampilkan bag. html detail kepemilikan pbb
                         
                         this.detailMap = {
                             id: polygonId,
@@ -495,8 +461,8 @@ export default {
                             kopak_id: this.id,
                             kopak: this.detailKopak
                         }
-                        this.setSelectedPolygon()
-                        this.detailPBB(polygonId)
+                        this.setSelectedPolygon() // mengubah warna denah menjadi merah
+                        this.detailPBB(polygonId) // proses pencarian pbb berasarkan id denah
                     });
 
                     // Menambahkan polygon ke drawnItems
@@ -518,14 +484,12 @@ export default {
             this.initialMap.on('draw:edited', (event) => {
                 const layers = event.layers; // Semua layer yang diupdate
                 layers.eachLayer(async (layer) => {
-                    // const geoJSON = layer.toGeoJSON(); // Konversi layer ke GeoJSON
                     const dataPolygon = {
-                        // points: JSON.stringify(geoJSON.geometry.coordinates),
-                        points: JSON.stringify(this.getLatLngArray(layer)),
+                        points: JSON.stringify(this.getLatLngArray(layer)), // pengambilan semua titik lat long pada gambar 
                     }
 
                     const detailLocation = find(this.allPolygons, { id: layer.options.id })
-                    
+                    // proses simpan ke database
                     await this.saveLocationToDatabase(dataPolygon, detailLocation.primary_id)
                 });
             });
@@ -533,7 +497,7 @@ export default {
             // Event ketika fitur dihapus
             this.initialMap.on('draw:deleted', async (event) => {
                 const layers = event.layers; // Semua layer yang diupdate
-                // Iterasi secara berurutan menggunakan for...of
+                // Iterasi // looping secara berurutan menggunakan for...of
                 for (const layer of layers.getLayers()) {
                     const detailPolygon = find(this.allPolygons, { id: layer.options.id });
 
@@ -552,17 +516,8 @@ export default {
             // Tambahkan kontrol fullscreen
             this.initialMap.addControl(new L.Control.Fullscreen({position: 'bottomright' }));
 
-            // Event listener untuk masuk dan keluar fullscreen
-            this.initialMap.on("enterFullscreen", () => {
-                console.log("Peta dalam mode fullscreen");
-            });
-
-            this.initialMap.on("exitFullscreen", () => {
-                console.log("Peta keluar dari mode fullscreen");
-            });
-
             // ===================================================================================================================
-            // Add area marker
+            // pengambilan data denah dari database dan di masukan ke map
             if (this.allPolygons) {
                 this.allPolygons.forEach(element => {
                     const polygon = L.polygon(element.points, {
@@ -572,8 +527,6 @@ export default {
                         fillOpacity: 0.5, // Tingkat transparansi isian
                         weight: 2
                     }).addTo(this.initialMap)
-                    // .bindPopup('A pretty CSS popup.<br> Easily customizable.')
-                    // .openPopup();
 
                     this.polygons.push(polygon);
 
@@ -595,6 +548,7 @@ export default {
             }
         },
         getLatLngArray(layer) {
+            // mapping data array [[1322,21232], [1322,21232]] menjadi [{lat:1322, lng: 21232}]
             const latLngs = layer.getLatLngs()[0]; // Koordinat luar (lapisan pertama)
             return latLngs.map((latLng) => ({
                 lat: latLng.lat,
@@ -615,10 +569,12 @@ export default {
         resetSelectedPolygon() {
             // Reset warna polygon sebelumnya jika ada
             if (this.lastClickedPolygon) {
-                const locationByOwner = this.getLocationFromOwner()
+                const locationByOwner = this.getLocationFromOwner() // mencari denah yang sedang dicari (denah berwarna jingga)
                 if (this.ownerName && includes(locationByOwner, this.lastClickedPolygon.options.id)) {
+                    // reset denah yang tidak diklik menjadi warna jingga, jika sedang mencari pemilik pbb
                     this.setSelectedPolygonByOwner()
                 } else {
+                    // warna denah direset menjadi warna biru / hitam berdasarkan kopak yang aktif/sedang di buka
                     this.lastClickedPolygon.setStyle({
                         color: this.lastClickedPolygon.options.is_owner ? "blue" : "#202020", // Warna garis tepi
                         fillColor: this.lastClickedPolygon.options.is_owner ? "rgba(0, 0, 255, 1)" : "rgba(0, 0, 0, 1)", // Warna isian (dengan transparansi)
@@ -627,33 +583,39 @@ export default {
             }
         },
         async getSuppervisor() {
-            // detailSupervisor
+            // mengambil data users yang role nya admin berdasarkan id penanggung jawab
             const dataDoc = await getDoc(doc(db, "users", this.detailKopak.supervisorId));
             
             if (dataDoc.exists()) {
                 const data = dataDoc.data();
 
+                // menampunng data ke variable
                 this.detailSupervisor = {
                     ...data
                 }
             }
         },
         async saveLocationToDatabase(data, id=null) {
+            // menyimpan data denah ke firestore database
             try {
                 this.fetch = true
-                this.loading = this.$loading.show()
+                this.loading = this.$loading.show() // memunculkan loading
 
                 if (id) {
+                    // jika melakukan operasi edit data denah
                     await updateDoc(doc(db, "location", id), data);
                 } else {
+                    // jika melakukan operasi tambah data denah
                     await addDoc(collection(db, "location"), {...data});
                 }
 
                 this.loading.hide()
                 this.$toast.success('Data Berhasil Disimpan');
 
+                // setelah proses operasi berhasil, maka melakukan pengambilan data denah kembali ke firebase
                 await this.fetchDataLocation()
             } catch(error) {
+                // penangangan error
                 if (this.loading != null)
                     this.loading.hide()
                 this.fetch = false
@@ -665,6 +627,7 @@ export default {
             }
         },
         async confirmDeleteLocation() {
+            // popup menghapus data denah/lokasi
             this.$swal
                 .fire({
                     title: 'Apakah kamu yakin ?',
@@ -679,6 +642,7 @@ export default {
                 })
                 .then(async (result) => {
                     if (result.isConfirmed) {
+                        // menghapus daata lokasi/denah ke database
                         this.deleteLocation(this.detailMap?.primary_id)
                     }
                 });
@@ -688,9 +652,11 @@ export default {
                 this.loading = this.$loading.show()
                 this.fetch = true
                 if (id) {
+                    // menghapus daata lokasi/denah ke database
                     await deleteDoc(doc(db, "location", id));
                 }
 
+                // menghapus gambar denah pada map yang terakhir diklik/yang sedang aktif (warna merah) / berhasil di hapus dari database
                 if (this.polygonClicked) {
                     const searchIndex = findIndex(this.polygons, (data) => data.options.id == this.polygonClicked.options.id);
                     
@@ -699,7 +665,9 @@ export default {
                             // Iterasi semua polygon dan hapus dari peta
                             this.initialMap.removeLayer(this.polygons[searchIndex]);
 
-                            // Kosongkan array polygons
+                            // menghapus value pada array tertentu sesuai index (posisi)
+                            // contoh data = [1,2,3] jika data.splice(2, 1), maka data pada posisi ke 2 akan dihapus
+                            // output nya : [1,2]
                             this.polygons.splice(searchIndex, 1);
                         }
                     }
@@ -733,20 +701,23 @@ export default {
                         try {
                             this.loading = this.$loading.show()
                             this.fetch = true
+                            // menghapus data pbb ke firestore database
                             await deleteDoc(doc(db, "pbb", this.detailMap.data.primary_id));
                             this.fetch = false
                             this.loading.hide()
 
-                            // search data
+                            // search data lokasi berdasarkan denah yang sedang di buka / aktif
                             const searchLocation = findIndex(this.allPolygons, { primary_id: this.detailMap.primary_id })
+                            // search data ke variable, untuk mencari data PBB pada semua denah berdasarkan denah id
                             const indexPBB = findIndex(this.allPBB, {location_id: this.detailMap.id})
 
-                            if (searchLocation >= 0) {
+                            if (searchLocation >= 0) { // jika data ditemukan, maka data pbb akan dihapus
                                 this.allPolygons[searchLocation].data = []
                             } if (indexPBB >= 0) {
-                                this.allPBB.splice(indexPBB, 1)
+                                this.allPBB.splice(indexPBB, 1) // hapus data pbb pada variable PBB
                             }
 
+                            // reset / tutup tampilan detail kepemilikan PBB
                             this.detailMap = {
                                 data: {}
                             }
@@ -762,12 +733,15 @@ export default {
                 });
         },
         onSelectedAutocomplete(data) {
+            // event terpilih nya pemilik PBB pada form auto complete
             this.ownerSelected = data
 
-            this.setSelectedPolygonByOwner()
+            this.setSelectedPolygonByOwner() // ubah warna denah menjadi jingga
         },
         getLocationFromOwner() {
+            // mencari semua denah sesuai dengan data kepemilikan PBB berdasarkan nama pemilik pajak
             const result = this.allPBB.filter(item => {
+                // toLowerCase() = untuk mengubah huruf menjadi kecil semua contoh AaaAa ==> aaaaa
                 if (item.taxpayer_name.toLowerCase().includes(this.ownerSelected.name.toLowerCase())) {
                     return item
                 }
@@ -775,34 +749,33 @@ export default {
 
             return result
         },
-        setSelectedPolygonByOwner() {
+        setSelectedPolygonByOwner() { // mengubah warna denah menjadi ke jingga ketika proses pencarian pemilik pajak
             const locationByOwner = this.getLocationFromOwner()
             this.polygons.filter(item => {
                 if (includes(locationByOwner, item.options.id)) {
                     item.setStyle({
-                        color: "orange", // Ubah warna garis menjadi merah
-                        fillColor: "rgba(255, 165, 0, 1)", // Ubah warna isi menjadi merah dengan transparansi
+                        color: "orange", // Ubah warna garis menjadi oren
+                        fillColor: "rgba(255, 165, 0, 1)", // Ubah warna isi menjadi oren dengan transparansi
                     });
                 }
             })
         },
-        closeDetailPBB() {
+        closeDetailPBB() { // menutup tampilan detail kempilikan PBB
             this.showDetail = !this.showDetail
             this.resetSelectedPolygon()
         },
         async fetchDataKopak() {
+            // mengambil semua data kopak untuk daftar kopak lainna
             try {
                 this.loading = this.$loading.show()
 
-                const role = this.$store.state.user?.role
-                const userId = this.$store.state.user?.id
-                
+                // query untuk select data kopak
                 const kopakQuery = query(
                     collection(db, "kopak"),
                     orderBy("createdAt", 'asc'),
                 );
-                const kopakSnapshot = await getDocs(kopakQuery);                
-                this.listKopak = kopakSnapshot.docs
+                const kopakSnapshot = await getDocs(kopakQuery); // memproses query               
+                this.listKopak = kopakSnapshot.docs // mengambil data setelah query berhasil diproses
                 .map(doc => ({
                     id: doc.id,
                     ...doc.data(),
@@ -814,11 +787,12 @@ export default {
             }
         },
         async openKopak(id) {
+            // membuka kopak yang dipilih pada daftar kopak lainnya
             this.$router.replace({ name: 'kopak.information', params: { id } });
         }
     },
     beforeDestroy() {
-        // Hapus peta saat komponen dihapus
+        // Hapus peta saat halaman dihapus / ditutup
         if (this.initialMap) {
             this.initialMap.remove();
         }

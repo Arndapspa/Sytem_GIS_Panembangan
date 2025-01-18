@@ -185,6 +185,7 @@ export default {
     },
     async mounted() {
         if (this.id) {
+            // mengambil data users berdasarkan id
             const userDoc = await getDoc(doc(db, "users", this.id));
             
             if (userDoc.exists()) {
@@ -196,6 +197,7 @@ export default {
     },
     methods: {
         async handleSubmit() {
+            // simpan data ke database
             const checkExistsNIK = await this.checkNIK()
             if (checkExistsNIK == 0) {
                 if (!this.id) {
