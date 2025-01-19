@@ -103,8 +103,7 @@
     </main>
 </template>
 <script>
-import simplebar from 'simplebar-vue';
-import 'simplebar-core/dist/simplebar.css';
+
 
 import { Field, Form, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
@@ -133,7 +132,7 @@ export default {
         }
     },
     components: {
-        simplebar, Field, Form, ErrorMessage
+         Field, Form, ErrorMessage
     },
     setup() {
         const route = useRoute();

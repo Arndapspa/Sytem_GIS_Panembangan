@@ -83,8 +83,7 @@
     </main>
 </template>
 <script>
-import simplebar from 'simplebar-vue';
-import 'simplebar-core/dist/simplebar.css';
+
 
 import {find, filter,map} from 'lodash'
 
@@ -109,9 +108,7 @@ export default {
             },
         }
     },
-    components: {
-        simplebar,
-    },
+
     computed: {
         selectedData() {
             return filter(this.list, function(data) { return data.checked; })

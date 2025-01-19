@@ -228,7 +228,7 @@ export default {
         }
     },
     watch: {
-        ownerName(value) {
+        ownerName(value) { //nyari nama pemilik
             if (value != this.ownerSelected.name) {
                 this.polygons.forEach(element => {
                     const checkDetailPolygon = find(this.allPolygons, {id: element.options.id})
@@ -267,7 +267,7 @@ export default {
     async mounted() { // ketika html kosongan ditampilkan, maka ada proses pengambilan data ke firestore
         if (this.id) {
             this.detailKopak = await this.fetchDetailKopak(this.id);
-            this.detailKopak.latitude = -7.3831153
+            this.detailKopak.latitude = -7.3831153 //lokasi desa panembangan
             this.detailKopak.longitude = 109.1252189
             
             if (this.detailKopak) {
@@ -517,7 +517,7 @@ export default {
             this.initialMap.addControl(new L.Control.Fullscreen({position: 'bottomright' }));
 
             // ===================================================================================================================
-            // pengambilan data denah dari database dan di masukan ke map
+            // pengambilan data denah dari database dan di masukan ke map (maps abu)
             if (this.allPolygons) {
                 this.allPolygons.forEach(element => {
                     const polygon = L.polygon(element.points, {

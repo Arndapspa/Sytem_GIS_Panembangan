@@ -111,8 +111,7 @@
     </main>
 </template>
 <script>
-import simplebar from 'simplebar-vue';
-import 'simplebar-core/dist/simplebar.css';
+
 
 import { db } from '@/utils/firebase';
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
@@ -131,9 +130,7 @@ export default {
             listKopak: [],
         }
     },
-    components: {
-        simplebar,
-    },
+
     mounted() {
         setTimeout(() => {
             this.getStatisticUser()

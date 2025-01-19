@@ -156,8 +156,9 @@ const routes = [
     },
 ]
 
+//inisiasi objek router
 const router = createRouter({
-    history: createWebHashHistory(),
+    history: createWebHashHistory(), //configurasi url dgn memunculkan tanda # agar tdk perlu melakukan konfigurasi ke server
     routes: routes,
     linkActiveClass: 'active-link',
     scrollBehavior() {
@@ -165,8 +166,9 @@ const router = createRouter({
     }
 })
 
+//fungsi ketika pindah menu ada pengecekan hak akses, jika akses pada menu tdk sesuai dgn user yang login, akan dilempar ke halaman not found
 router.beforeEach((to, from, next) => {
-    document.title = to.meta.title;
+    document.title = to.meta.title; 
 
     const localData = localStorage.getItem('token')
     const tmpRole = localStorage.getItem('role') || ''
@@ -175,6 +177,7 @@ router.beforeEach((to, from, next) => {
 
     let isAllow = true
 
+    //jika hak akses sesuai, menu akan ditampilkan sesuai dgn role
     if (role) {
         if (role != tmpRole)
             isAllow = false

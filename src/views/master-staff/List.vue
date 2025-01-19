@@ -80,8 +80,7 @@
     </main>
 </template>
 <script>
-import simplebar from 'simplebar-vue';
-import 'simplebar-core/dist/simplebar.css';
+
 
 import {filter, map} from 'lodash'
 
@@ -107,9 +106,7 @@ export default {
             },
         }
     },
-    components: {
-        simplebar,
-    },
+
     setup(){
         const api = axios.create({
             timeout: 30000,

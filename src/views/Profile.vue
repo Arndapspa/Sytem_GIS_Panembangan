@@ -68,8 +68,7 @@
     </main>
 </template>
 <script>
-import simplebar from 'simplebar-vue';
-import 'simplebar-core/dist/simplebar.css';
+
 
 import { Field, Form, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
@@ -106,7 +105,7 @@ export default {
         this.form.address = this.dataUser?.address
     },
     components: {
-        simplebar, Field, Form, ErrorMessage
+        Field, Form, ErrorMessage
     },
     watch: {
         dataUser(newValue, oldValue) {

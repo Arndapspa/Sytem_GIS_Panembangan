@@ -110,8 +110,7 @@
     </main>
 </template>
 <script>
-import simplebar from 'simplebar-vue';
-import 'simplebar-core/dist/simplebar.css';
+
 
 import { Field, Form, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
@@ -143,7 +142,7 @@ export default {
         }
     },
     components: {
-        simplebar, Field, Form, ErrorMessage
+         Field, Form, ErrorMessage
     },
     setup() {
         const route = useRoute();
@@ -247,10 +246,12 @@ export default {
                 this.$toast.error(message);
             }
         },
+
         registerAccount(email, password) {
             this.loading = this.$loading.show()
             if (this.form.password == this.form.confirmPassword) {
-                this.api
+                this.api 
+                //import.meta.env : envoirement/ variabel global yg ada di file.env
                     .post(`${import.meta.env.VITE_APP_API_ENDPOINT}/api/register`,
                         {
                             email: email,

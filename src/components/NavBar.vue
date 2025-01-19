@@ -59,8 +59,7 @@
         </div>
 </template>
 <script>
-import simplebar from 'simplebar-vue';
-import 'simplebar-core/dist/simplebar.css';
+
 
 import { signOut } from "firebase/auth";
 import { auth } from '@/utils/firebase';
@@ -98,9 +97,7 @@ export default {
             ]
         }
     },
-    components: {
-        simplebar,
-    },
+  
     watch: {
         $route(to, from) {
             this.showMenu = false
