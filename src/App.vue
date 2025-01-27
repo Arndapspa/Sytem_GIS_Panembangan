@@ -18,8 +18,6 @@ import { doc, getDoc } from "firebase/firestore";
 
 import stores from './stores';
 
-
-//file parent dari html/tampilan
 export default {
   data() {
     return {

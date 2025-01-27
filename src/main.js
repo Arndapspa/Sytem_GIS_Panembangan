@@ -1,4 +1,3 @@
-// kerangka utama projek, ngeload vue, dll
 import { createApp } from 'vue'
 import App from './App.vue'
 

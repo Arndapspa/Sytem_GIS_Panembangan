@@ -74,7 +74,12 @@
                                     <div class="card-body">
                                         <div style="position: relative">
                                             <div class="header-map mb-3">
-                                                <Autocomplete class="w-100" :source="dataAutoComplete" v-model="ownerName" :placeholder="'Cari kepemilikian PBB disini sesuai nama pemilik'" @onSelectedAutocomplete="onSelectedAutocomplete" />
+                                                <Autocomplete v-if="typeSearch == 'name'" class="w-100" :source="dataAutoComplete" v-model="ownerPBB" :placeholder="'Cari kepemilikan PBB disini berdasarkan nama pemilik'" @onSelectedAutocomplete="onSelectedAutocomplete" />
+                                                <div v-else style="position: relative;" class="w-100">
+                                                    <i class="mdi mdi-magnify m-0" style="position: absolute; bottom: 2px; left: 10px; font-size: 1.5rem;"></i>
+                                                    <input type="text" class="form-control w-100" style="padding-left: 2.5rem !important" @keydown.enter="searchOwnerByNop" placeholder="Cari kepemilikan PBB disini berdasarkan NOP lalu tekan enter" v-model="ownerPBB" />
+                                                </div>
+                                                <button class="btn btn-primary custom-rounded-medium ms-2 flex-shrink-0 py-0" :class="{'mb-2': typeSearch == 'name'}" @click="changeTypeSearch">{{ typeSearch == 'name' ? 'Cari Berdasarkan NOP' : 'Cari Berdasarkan Nama' }}</button>
                                             </div>
                                             <div class="custom-rounded-medium mb-3" style="height: 600px; width: 100%; z-index: 1;" id="map" :class="{'d-flex align-items-center justify-content-center bg-light': !this.detailKopak.latitude || !this.detailKopak.longitude}"></div>
                                         </div>
@@ -218,17 +223,18 @@ export default {
             polygonClicked: null,
             allPBB: [],
             dataAutoComplete: [],
-            ownerName: '',
+            ownerPBB: '',
             ownerSelected: {
                 id: '',
                 name: ''
             },
             drawnItems: null,
-            listKopak: []
+            listKopak: [],
+            typeSearch: 'name'
         }
     },
     watch: {
-        ownerName(value) { //nyari nama pemilik
+        ownerPBB(value) {
             if (value != this.ownerSelected.name) {
                 this.polygons.forEach(element => {
                     const checkDetailPolygon = find(this.allPolygons, {id: element.options.id})
@@ -267,7 +273,7 @@ export default {
     async mounted() { // ketika html kosongan ditampilkan, maka ada proses pengambilan data ke firestore
         if (this.id) {
             this.detailKopak = await this.fetchDetailKopak(this.id);
-            this.detailKopak.latitude = -7.3831153 //lokasi desa panembangan
+            this.detailKopak.latitude = -7.3831153
             this.detailKopak.longitude = 109.1252189
             
             if (this.detailKopak) {
@@ -517,7 +523,7 @@ export default {
             this.initialMap.addControl(new L.Control.Fullscreen({position: 'bottomright' }));
 
             // ===================================================================================================================
-            // pengambilan data denah dari database dan di masukan ke map (maps abu)
+            // pengambilan data denah dari database dan di masukan ke map
             if (this.allPolygons) {
                 this.allPolygons.forEach(element => {
                     const polygon = L.polygon(element.points, {
@@ -570,7 +576,7 @@ export default {
             // Reset warna polygon sebelumnya jika ada
             if (this.lastClickedPolygon) {
                 const locationByOwner = this.getLocationFromOwner() // mencari denah yang sedang dicari (denah berwarna jingga)
-                if (this.ownerName && includes(locationByOwner, this.lastClickedPolygon.options.id)) {
+                if (this.ownerPBB && includes(locationByOwner, this.lastClickedPolygon.options.id)) {
                     // reset denah yang tidak diklik menjadi warna jingga, jika sedang mencari pemilik pbb
                     this.setSelectedPolygonByOwner()
                 } else {
@@ -742,7 +748,8 @@ export default {
             // mencari semua denah sesuai dengan data kepemilikan PBB berdasarkan nama pemilik pajak
             const result = this.allPBB.filter(item => {
                 // toLowerCase() = untuk mengubah huruf menjadi kecil semua contoh AaaAa ==> aaaaa
-                if (item.taxpayer_name.toLowerCase().includes(this.ownerSelected.name.toLowerCase())) {
+                if (item.taxpayer_name.toLowerCase().includes(this.ownerSelected?.name?.toLowerCase()) ||
+                        this.ownerSelected?.nop ==  item.nop) {
                     return item
                 }
             }).map(data => (data.location_id))
@@ -789,6 +796,17 @@ export default {
         async openKopak(id) {
             // membuka kopak yang dipilih pada daftar kopak lainnya
             this.$router.replace({ name: 'kopak.information', params: { id } });
+        },
+        changeTypeSearch() {
+            this.ownerPBB = ''
+            this.typeSearch = this.typeSearch == 'name' ? 'nop' : 'name'
+        },
+        searchOwnerByNop() {
+            // event terpilih nya pemilik PBB pada form auto complete
+            this.ownerSelected = {
+                nop: this.ownerPBB
+            }
+            this.setSelectedPolygonByOwner() // ubah warna denah menjadi jingga
         }
     },
     beforeDestroy() {

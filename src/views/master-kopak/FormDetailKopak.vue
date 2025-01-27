@@ -98,8 +98,6 @@
     </main>
 </template>
 <script>
-
-
 import { Field, Form, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 
@@ -130,7 +128,7 @@ export default {
         }
     },
     components: {
-         Field, Form, ErrorMessage
+        Field, Form, ErrorMessage
     },
     setup() {
         const schema = yup.object({

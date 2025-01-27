@@ -68,8 +68,6 @@
     </main>
 </template>
 <script>
-
-
 import { Field, Form, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 

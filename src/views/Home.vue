@@ -111,8 +111,6 @@
     </main>
 </template>
 <script>
-
-
 import { db } from '@/utils/firebase';
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 
@@ -130,7 +128,6 @@ export default {
             listKopak: [],
         }
     },
-
     mounted() {
         setTimeout(() => {
             this.getStatisticUser()

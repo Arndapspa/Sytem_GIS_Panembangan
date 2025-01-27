@@ -83,8 +83,6 @@
     </main>
 </template>
 <script>
-
-
 import {find, filter,map} from 'lodash'
 
 import { db } from '@/utils/firebase';
@@ -108,7 +106,6 @@ export default {
             },
         }
     },
-
     computed: {
         selectedData() {
             return filter(this.list, function(data) { return data.checked; })

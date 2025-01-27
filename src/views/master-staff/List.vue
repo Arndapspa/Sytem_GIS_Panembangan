@@ -80,8 +80,6 @@
     </main>
 </template>
 <script>
-
-
 import {filter, map} from 'lodash'
 
 import axios from 'axios';
@@ -106,7 +104,6 @@ export default {
             },
         }
     },
-
     setup(){
         const api = axios.create({
             timeout: 30000,
