@@ -2,10 +2,10 @@
     <main>
         <div id="layout-wrapper">
             <div class="main-content">
-                <div class="page-content">
-                    <div class="container-fluid">
+                <div class="page-content" :class="{'p-0': printMode}">
+                    <div class="container-fluid" :class="{'p-0': printMode}">
                         <!-- title of page -->
-                        <div class="row">
+                        <div class="row" v-if="!printMode">
                             <div class="col-12 mt-3">
                                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                                     <div class="d-flex align-items-center">
@@ -16,7 +16,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-3" v-if="!printMode">
                                 <div class="card custom-rounded-medium">
                                     <div class="card-header bg-primary card-header-custom-radius-medium">
                                         <h5 class="text-center text-white my-2 fw-bold">{{ detailKopak.name }}</h5>
@@ -68,12 +68,15 @@
                             </div>
                             <div class="col-md-9">
                                 <div class="card custom-rounded-medium">
-                                    <div class="card-header bg-primary card-header-custom-radius-medium">
+                                    <div v-if="printMode">
+                                        <h5 class="text-center text-white my-2 fw-bold">{{ detailKopak.name }}</h5>
+                                    </div>
+                                    <div v-else class="card-header bg-primary card-header-custom-radius-medium">
                                         <h5 class="text-center text-white my-2 fw-bold">Maps Kopak</h5>
                                     </div>
                                     <div class="card-body">
                                         <div style="position: relative">
-                                            <div class="header-map mb-3">
+                                            <div class="header-map mb-3" v-if="!printMode">
                                                 <Autocomplete v-if="typeSearch == 'name'" class="w-100" :source="dataAutoComplete" v-model="ownerPBB" :placeholder="'Cari kepemilikan PBB disini berdasarkan nama pemilik'" @onSelectedAutocomplete="onSelectedAutocomplete" />
                                                 <div v-else style="position: relative;" class="w-100">
                                                     <i class="mdi mdi-magnify m-0" style="position: absolute; bottom: 2px; left: 10px; font-size: 1.5rem;"></i>
@@ -81,7 +84,9 @@
                                                 </div>
                                                 <button class="btn btn-primary custom-rounded-medium ms-2 flex-shrink-0 py-0" :class="{'mb-2': typeSearch == 'name'}" @click="changeTypeSearch">{{ typeSearch == 'name' ? 'Cari Berdasarkan NOP' : 'Cari Berdasarkan Nama' }}</button>
                                             </div>
-                                            <div class="custom-rounded-medium mb-3" style="height: 600px; width: 100%; z-index: 1;" id="map" :class="{'d-flex align-items-center justify-content-center bg-light': !this.detailKopak.latitude || !this.detailKopak.longitude}"></div>
+                                            <div :style="`height: ${!printMode ? '600px' : '400px'}`" class="mb-3">
+                                                <div class="custom-rounded-medium" :style="`height: 100%; width: 100%; z-index: 1;`" id="map" :class="{'d-flex align-items-center justify-content-center bg-light': !this.detailKopak.latitude || !this.detailKopak.longitude}"></div>
+                                            </div>
                                         </div>
                                         <div class="d-block bg-light p-3 custom-rounded-medium" v-if="showDetail">
                                             <div class="d-flex justify-content-between mb-4">
@@ -89,10 +94,10 @@
                                                     <h5 class="mt-2 mb-1">Detail Kepemilikan</h5>
                                                     <div>{{ detailMap.kopak?.name }} <span v-if="!detailMap.data?.nop">- {{ detailMap.title }}</span></div>
                                                 </div>
-                                                <a href="javascript:void(0)" @click="closeDetailPBB()"><i class="mdi mdi-close font-size-20 text-muted"></i></a>
+                                                <a href="javascript:void(0)" @click="closeDetailPBB()" v-if="!printMode"><i class="mdi mdi-close font-size-20 text-muted"></i></a>
                                             </div>
                                             <div class="row" v-if="detailMap.data?.nop">
-                                                <div class="col-md-6">
+                                                <div :class="{'col-md-6': !printMode, 'w-50': printMode}">
                                                     <div class="form-group mb-3">
                                                         <div>NOP</div>
                                                         <div class="h6">{{ detailMap.data.nop }}</div>
@@ -114,7 +119,7 @@
                                                         <div class="h6">{{ detailMap.data.building }} m</div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
+                                                <div :class="{'col-md-6': !printMode, 'w-50': printMode}">
                                                     <div class="form-group mb-3">
                                                         <div>Tahun Pajak</div>
                                                         <div class="h6">{{ detailMap.data.tax_year }}</div>
@@ -160,9 +165,14 @@
                                             </div>
                                         </template>
                                     </div>
-                                    <div class="card-footer text-end" v-if="showDetail && detailMap.data?.nop">
-                                        <button type="button" class="btn btn-link text-dark fw-bold me-2 text-decoration-none" @click="deleteDataPBB" v-if="detailMap.kopak?.supervisorId == $store.state.user?.id || $store.state.user?.role == 'superadmin'"><i class="mdi mdi-trash-can-outline me-2"></i>Hapus PBB</button>
-                                        <router-link :to="`/master-kopak/form/detail/${id}/${detailMap.id}/${detailMap.data.primary_id}`" class="btn btn-primary custom-rounded-medium" v-if="$store.state.user?.role != 'staff'">Edit Data PBB</router-link>
+                                    <div class="card-footer" v-if="showDetail && detailMap.data?.nop && !printMode">
+                                        <div class="d-flex justify-content-between">
+                                            <button type="button" class="btn btn-link text-dark fw-bold me-2 text-decoration-none" @click="printReport"><i class="mdi mdi-printer me-2"></i>Cetak Data</button>
+                                            <div>
+                                                <button type="button" class="btn btn-link text-dark fw-bold me-2 text-decoration-none" @click="deleteDataPBB" v-if="detailMap.kopak?.supervisorId == $store.state.user?.id || $store.state.user?.role == 'superadmin'"><i class="mdi mdi-trash-can-outline me-2"></i>Hapus PBB</button>
+                                                <router-link :to="`/master-kopak/form/detail/${id}/${detailMap.id}/${detailMap.data.primary_id}`" class="btn btn-primary custom-rounded-medium" v-if="$store.state.user?.role != 'staff'">Edit Data PBB</router-link>
+                                            </div>
+                                        </div>
                                     </div>
                                     <!-- end card-body -->
                                 </div>
@@ -230,7 +240,8 @@ export default {
             },
             drawnItems: null,
             listKopak: [],
-            typeSearch: 'name'
+            typeSearch: 'name',
+            printMode: false,
         }
     },
     watch: {
@@ -404,7 +415,7 @@ export default {
             this.initialMap.addLayer(this.drawnItems);
 
             // Inisialisasi kontrol gambar
-            const drawControl = new L.Control.Draw({
+            this.drawControl = new L.Control.Draw({
                 edit: {
                     featureGroup: this.drawnItems, // Group untuk fitur yang bisa diedit
                 },
@@ -426,8 +437,8 @@ export default {
 
             // jika role user yang login bukan petugas, maka tambahkan tools ke map
             if (this.$store.state.user?.role != 'staff') {
-                this.initialMap.addControl(drawControl);
-                drawControl.setPosition('bottomleft'); // Mengatur posisi kontrol
+                this.initialMap.addControl(this.drawControl);
+                this.drawControl.setPosition('bottomleft'); // Mengatur posisi kontrol
             }
 
             // Event ketika fitur telah digambar pada map
@@ -520,7 +531,8 @@ export default {
             });
 
             // Tambahkan kontrol fullscreen
-            this.initialMap.addControl(new L.Control.Fullscreen({position: 'bottomright' }));
+            this.fullScreenControl = new L.Control.Fullscreen({position: 'bottomright' })
+            this.initialMap.addControl(this.fullScreenControl);
 
             // ===================================================================================================================
             // pengambilan data denah dari database dan di masukan ke map
@@ -807,6 +819,19 @@ export default {
                 nop: this.ownerPBB
             }
             this.setSelectedPolygonByOwner() // ubah warna denah menjadi jingga
+        },
+        printReport() {
+            this.printMode = true
+            // Menghapus kontrol gambar dari peta
+            this.initialMap.removeControl(this.drawControl);
+            // Menghapus fullscreen dari peta
+            this.initialMap.removeControl(this.fullScreenControl);
+            setTimeout(() => {
+                window.print()
+                this.printMode = false
+                this.initialMap.addControl(this.drawControl);
+                this.initialMap.addControl(this.fullScreenControl);
+            }, 500);
         }
     },
     beforeDestroy() {
