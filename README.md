@@ -7,3 +7,29 @@ Sistem ini bertujuan untuk memfasilitasi pengelolaan, analisis, dan visualisasi 
 
 Dengan memanfaatkan teknologi GIS, sistem ini mengintegrasikan data spatial dan non-spatial untuk memberikan informasi yang terstruktur dan mudah diakses oleh pengelola desa, petugas PBB, serta stakeholder lainnya.  
 Proyek ini fokus pada pengembangan backend yang memproses dan mengelola data spatial, menyediakan API untuk integrasi frontend, serta meningkatkan efisiensi pengelolaan data PBB di Desa Panembangan.
+
+
+# system-gis-pbb-penembangan
+
+## Project setup
+```
+npm install
+```
+
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
+
+### Compiles and minifies for production
+```
+npm run build
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
